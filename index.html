@@ -1,0 +1,2294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Beccacece Hnos — Gestión de Requisitos Legales</title>
+<style>
+  :root {
+    --navy: #0d1b2a;
+    --navy-mid: #1a2d42;
+    --navy-light: #243d57;
+    --gold: #c8941a;
+    --gold-light: #e6a820;
+    --red: #c0392b;
+    --red-light: #e74c3c;
+    --green: #1a7a4a;
+    --green-light: #27ae60;
+    --amber: #d68910;
+    --amber-light: #f0a500;
+    --text: #e8edf3;
+    --text-muted: #8fa3b8;
+    --border: #2a3f57;
+    --surface: #162233;
+    --surface2: #1e2f42;
+    --input-bg: #0f1e2d;
+    --white: #ffffff;
+    --font-display: 'Georgia', serif;
+    --font-body: 'Segoe UI', system-ui, sans-serif;
+    --font-mono: 'Courier New', monospace;
+    --radius: 6px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 14px;
+    line-height: 1.5;
+    min-height: 100vh;
+  }
+
+  /* ── LOGIN SCREEN ── */
+  #login-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 48px 40px;
+    width: 380px;
+    box-shadow: var(--shadow);
+  }
+
+  .login-logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+
+  .login-logo .brand {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+
+  .login-logo .sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  .login-logo .divider {
+    width: 40px;
+    height: 2px;
+    background: var(--gold);
+    margin: 12px auto;
+    opacity: 0.6;
+  }
+
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  input[type=text], input[type=password], input[type=email], input[type=date], 
+  select, textarea {
+    width: 100%;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 10px 12px;
+    font-family: var(--font-body);
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+  select option { background: var(--navy); }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: var(--radius);
+    font-family: var(--font-body);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-decoration: none;
+  }
+  .btn-primary { background: var(--gold); color: var(--navy); }
+  .btn-primary:hover { background: var(--gold-light); }
+  .btn-danger { background: var(--red); color: var(--white); }
+  .btn-danger:hover { background: var(--red-light); }
+  .btn-success { background: var(--green); color: var(--white); }
+  .btn-success:hover { background: var(--green-light); }
+  .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-full { width: 100%; justify-content: center; margin-top: 8px; }
+
+  .login-error {
+    color: var(--red-light);
+    font-size: 12px;
+    text-align: center;
+    margin-top: 10px;
+    display: none;
+  }
+
+  /* ── MAIN APP ── */
+  #app { display: none; }
+
+  /* TOPBAR */
+  .topbar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .topbar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .topbar-logo {
+    width: 32px;
+    height: 32px;
+    background: var(--gold);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: var(--navy);
+    font-size: 13px;
+  }
+
+  .topbar-name {
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: bold;
+    color: var(--text);
+  }
+
+  .topbar-module {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .user-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: var(--navy-light);
+    border-radius: 20px;
+    font-size: 12px;
+  }
+
+  .user-role-pill {
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .role-admin { background: var(--gold); color: var(--navy); }
+  .role-editor { background: var(--green); color: var(--white); }
+  .role-viewer { background: var(--navy-light); color: var(--text-muted); border: 1px solid var(--border); }
+
+  /* LAYOUT */
+  .layout {
+    display: flex;
+    height: calc(100vh - 56px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 220px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 20px 0;
+    overflow-y: auto;
+    flex-shrink: 0;
+  }
+
+  .nav-section-label {
+    padding: 0 16px 8px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-top: 16px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 16px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    border-left: 3px solid transparent;
+    transition: all 0.15s;
+  }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active { 
+    background: var(--surface2); 
+    color: var(--gold); 
+    border-left-color: var(--gold);
+  }
+  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: var(--white);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
+  }
+
+  /* MAIN CONTENT */
+  .main-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+    background: var(--navy);
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* SUMMARY CARDS */
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .summary-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 16px;
+    border-top: 3px solid transparent;
+  }
+  .summary-card.red-top { border-top-color: var(--red); }
+  .summary-card.amber-top { border-top-color: var(--amber); }
+  .summary-card.green-top { border-top-color: var(--green); }
+  .summary-card.gold-top { border-top-color: var(--gold); }
+
+  .summary-num {
+    font-size: 32px;
+    font-weight: 700;
+    font-family: var(--font-display);
+    line-height: 1;
+  }
+  .summary-label { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+  .summary-sub { font-size: 11px; color: var(--text-muted); margin-top: 8px; opacity: 0.7; }
+
+  .s-red { color: var(--red-light); }
+  .s-amber { color: var(--amber-light); }
+  .s-green { color: var(--green-light); }
+  .s-gold { color: var(--gold-light); }
+
+  /* PAGE HEADER */
+  .page-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    gap: 16px;
+  }
+
+  .page-title {
+    font-family: var(--font-display);
+    font-size: 20px;
+    font-weight: bold;
+    color: var(--text);
+  }
+
+  .page-sub { font-size: 12px; color: var(--text-muted); margin-top: 3px; }
+
+  /* FILTERS BAR */
+  .filters-bar {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+
+  .filters-bar select, .filters-bar input {
+    width: auto;
+    min-width: 120px;
+    flex: 1;
+    max-width: 220px;
+  }
+
+  .filters-bar label { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+  /* TABLE */
+  .table-wrapper {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    background: var(--navy-light);
+    border-bottom: 1px solid var(--border);
+  }
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  th:hover { color: var(--gold); }
+
+  td {
+    padding: 11px 14px;
+    font-size: 13px;
+    border-bottom: 1px solid rgba(42,63,87,0.5);
+    vertical-align: middle;
+  }
+
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: var(--surface2); }
+
+  .td-doc { max-width: 220px; }
+  .td-doc .doc-name { font-weight: 600; color: var(--text); }
+  .td-doc .doc-detail { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* STATUS BADGES */
+  .badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  .badge-vigente { background: rgba(26,122,74,0.2); color: #4dcd8a; border: 1px solid rgba(39,174,96,0.3); }
+  .badge-vencido { background: rgba(192,57,43,0.2); color: #ff6b6b; border: 1px solid rgba(231,76,60,0.3); }
+  .badge-proximo { background: rgba(214,137,16,0.2); color: #ffca4a; border: 1px solid rgba(240,165,0,0.3); }
+  .badge-actualizar { background: rgba(200,148,26,0.2); color: #e6a820; border: 1px solid rgba(200,148,26,0.3); }
+  .badge-novence { background: rgba(26,45,66,0.4); color: var(--text-muted); border: 1px solid var(--border); }
+
+  /* DAYS REMAINING */
+  .days-pill {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .days-red { color: var(--red-light); }
+  .days-amber { color: var(--amber-light); }
+  .days-green { color: var(--green-light); }
+  .days-gray { color: var(--text-muted); }
+
+  /* ACTION BUTTONS in table */
+  .actions { display: flex; gap: 6px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    width: 100%;
+    max-width: 580px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+  }
+
+  .modal-header {
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--text);
+  }
+
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  .modal-body { padding: 24px; }
+  .modal-footer { 
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+  /* UPLOAD AREA */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 6px;
+  }
+  .upload-area:hover { border-color: var(--gold); background: rgba(200,148,26,0.05); }
+  .upload-area .upload-icon { font-size: 28px; margin-bottom: 8px; }
+  .upload-area .upload-text { font-size: 13px; color: var(--text-muted); }
+  .upload-area .upload-sub { font-size: 11px; color: var(--text-muted); opacity: 0.7; margin-top: 4px; }
+  .upload-area input[type=file] { display: none; }
+
+  .file-preview {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-top: 8px;
+    font-size: 12px;
+    display: none;
+  }
+  .file-preview .file-name { flex: 1; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .file-preview .file-size { color: var(--text-muted); }
+  .file-preview .file-remove { cursor: pointer; color: var(--red-light); font-size: 14px; }
+
+  /* ALERTS / NOTIFICATIONS */
+  .alert {
+    padding: 12px 16px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    margin-bottom: 16px;
+    border-left: 4px solid transparent;
+  }
+  .alert-danger { background: rgba(192,57,43,0.1); border-left-color: var(--red); color: #ff8877; }
+  .alert-success { background: rgba(26,122,74,0.1); border-left-color: var(--green); color: #4dcd8a; }
+  .alert-warning { background: rgba(214,137,16,0.1); border-left-color: var(--amber); color: #ffca4a; }
+
+  /* TOAST */
+  .toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13px;
+    box-shadow: var(--shadow);
+    min-width: 280px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideIn 0.3s ease;
+  }
+  @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  .toast-success { border-left: 4px solid var(--green); }
+  .toast-error { border-left: 4px solid var(--red); }
+  .toast-info { border-left: 4px solid var(--gold); }
+
+  /* HISTORY LOG */
+  .history-entry {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(42,63,87,0.4);
+  }
+  .history-entry:last-child { border-bottom: none; }
+  .history-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--gold);
+    margin-top: 5px;
+    flex-shrink: 0;
+  }
+  .history-date { font-size: 11px; color: var(--text-muted); font-family: var(--font-mono); }
+  .history-user { font-size: 12px; font-weight: 600; color: var(--gold); }
+  .history-action { font-size: 12px; color: var(--text-muted); }
+
+  /* RESPONSABLES PAGE */
+  .user-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .user-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--navy-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--gold);
+    flex-shrink: 0;
+  }
+
+  .user-info { flex: 1; }
+  .user-name { font-weight: 600; font-size: 14px; }
+  .user-area { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+  .user-docs { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+
+  /* SECTION DIVIDER */
+  .section-divider {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--gold);
+    padding: 4px 0 10px;
+    border-bottom: 1px solid rgba(200,148,26,0.2);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* EMAIL PREVIEW */
+  .email-preview {
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    white-space: pre-wrap;
+    line-height: 1.6;
+  }
+
+  /* SEARCH */
+  .search-box {
+    position: relative;
+    flex: 1;
+    max-width: 300px;
+  }
+  .search-box input { padding-left: 32px; }
+  .search-box::before {
+    content: "🔍";
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    pointer-events: none;
+  }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-muted);
+  }
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state .empty-text { font-size: 14px; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--navy); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* HELP TEXT */
+  .help-text { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  /* TAG */
+  .tag {
+    display: inline-block;
+    padding: 2px 6px;
+    background: var(--navy-light);
+    border-radius: 3px;
+    font-size: 10px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  /* PRIORITY INDICATOR */
+  .priority-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  .p-critico { background: var(--red-light); }
+  .p-alto { background: var(--amber-light); }
+  .p-medio { background: var(--green-light); }
+  .p-bajo { background: var(--text-muted); }
+
+  /* RESPONSIVE HIDDEN */
+  @media (max-width: 900px) {
+    .sidebar { width: 56px; }
+    .sidebar .nav-item span, .sidebar .nav-section-label, .sidebar .nav-badge { display: none; }
+    .nav-icon { width: 100%; text-align: center; font-size: 18px; }
+  }
+
+  /* PRINT */
+  .no-print { }
+
+  /* LINK STYLE */
+  a.doc-link { color: var(--gold); text-decoration: none; font-size: 11px; }
+  a.doc-link:hover { text-decoration: underline; }
+
+  /* PERMISSION NOTICE */
+  .perm-notice {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(192,57,43,0.1);
+    border: 1px solid rgba(192,57,43,0.3);
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--red-light);
+  }
+</style>
+</head>
+<body>
+
+<!-- ── LOGIN SCREEN ── -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="brand">BECCACECE HNOS.</div>
+      <div class="divider"></div>
+      <div class="sub">Sistema de Gestión de Requisitos Legales</div>
+    </div>
+    <div class="form-group">
+      <label>Usuario</label>
+      <input type="text" id="login-user" placeholder="Tu nombre de usuario" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Ingresar</button>
+    <div class="login-error" id="login-error">Usuario o contraseña incorrectos.</div>
+    <div style="margin-top:24px; font-size:11px; color:var(--text-muted); text-align:center; line-height:1.7;">
+      <b>Demo:</b><br>
+      admin / admin2024 (Administrador)<br>
+      edu / becca2026 (Editor SyH)<br>
+      mirta / gestion25 (Editora Admin)<br>
+      viewer / ver2026 (Solo lectura)
+    </div>
+  </div>
+</div>
+
+<!-- ── MAIN APP ── -->
+<div id="app">
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo">BH</div>
+      <div>
+        <div class="topbar-name">Beccacece Hnos. S.A.</div>
+        <div class="topbar-module">Gestión de Requisitos Legales</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div id="alert-indicator" style="font-size:12px; color:var(--amber-light); display:none;">
+        ⚠ <span id="alert-count">0</span> vencimientos próximos
+      </div>
+      <div class="user-badge">
+        <span id="topbar-username">—</span>
+        <span class="user-role-pill" id="topbar-role"></span>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="nav-section-label">Principal</div>
+      <div class="nav-item active" onclick="nav('dashboard')" id="nav-dashboard">
+        <span class="nav-icon">📊</span><span>Dashboard</span>
+        <span class="nav-badge" id="badge-vencidos" style="display:none">!</span>
+      </div>
+      <div class="nav-item" onclick="nav('requisitos')" id="nav-requisitos">
+        <span class="nav-icon">📋</span><span>Requisitos Legales</span>
+      </div>
+      <div class="nav-item" onclick="nav('choferes')" id="nav-choferes">
+        <span class="nav-icon">🚛</span><span>Choferes y Flota</span>
+      </div>
+      <div class="nav-section-label">Gestión</div>
+      <div class="nav-item" onclick="nav('notificaciones')" id="nav-notificaciones">
+        <span class="nav-icon">📧</span><span>Notificaciones</span>
+      </div>
+      <div class="nav-item" onclick="nav('historial')" id="nav-historial">
+        <span class="nav-icon">🕐</span><span>Historial</span>
+      </div>
+      <div class="nav-item admin-only" onclick="nav('usuarios')" id="nav-usuarios">
+        <span class="nav-icon">👥</span><span>Usuarios</span>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Dashboard</div>
+            <div class="page-sub">Resumen de cumplimiento — <span id="dash-date"></span></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="sendDailyReport()">📧 Enviar reporte diario</button>
+        </div>
+
+        <div class="summary-grid" id="summary-cards"></div>
+
+        <div class="section-divider">🔴 Vencidos / A Actualizar</div>
+        <div class="table-wrapper" style="margin-bottom:20px">
+          <table id="tbl-vencidos">
+            <thead><tr>
+              <th>Documento</th><th>Categoría</th><th>Responsable</th><th>Vencimiento</th><th>Estado</th><th>Acción</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <div class="section-divider">⚠ Próximos a vencer (30 días)</div>
+        <div class="table-wrapper">
+          <table id="tbl-proximos">
+            <thead><tr>
+              <th>Documento</th><th>Categoría</th><th>Responsable</th><th>Vencimiento</th><th>Días restantes</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── REQUISITOS ── -->
+      <div class="page" id="page-requisitos">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Requisitos Legales</div>
+            <div class="page-sub">Todos los documentos obligatorios de la empresa</div>
+          </div>
+          <button class="btn btn-primary btn-sm admin-only editor-only" onclick="openNewReq()">+ Nuevo requisito</button>
+        </div>
+
+        <div class="filters-bar">
+          <div class="search-box">
+            <input type="text" id="req-search" placeholder="Buscar documento..." oninput="filterReq()">
+          </div>
+          <div>
+            <label>Categoría</label>
+            <select id="req-cat" onchange="filterReq()">
+              <option value="">Todas</option>
+              <option>GENERAL NEGOCIO</option>
+              <option>AMBIENTAL</option>
+              <option>SERVICIOS EXTERNOS</option>
+              <option>REQUISITOS MUNICIPAL ESTUDIO</option>
+              <option>SISTEMA DE EMERGENCIAS</option>
+              <option>LEY 19587 / DEC 351/97</option>
+              <option>VEHÍCULOS</option>
+              <option>CONTROL DOCUMENTARIO CMQ</option>
+            </select>
+          </div>
+          <div>
+            <label>Estado</label>
+            <select id="req-status" onchange="filterReq()">
+              <option value="">Todos</option>
+              <option>VIGENTE</option>
+              <option>VENCIDO</option>
+              <option>PRÓXIMO</option>
+              <option>ACTUALIZAR</option>
+              <option>NO VENCE</option>
+            </select>
+          </div>
+          <div>
+            <label>Responsable</label>
+            <select id="req-resp" onchange="filterReq()">
+              <option value="">Todos</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead><tr>
+              <th onclick="sortReq('cat')">Categoría</th>
+              <th onclick="sortReq('doc')">Documento</th>
+              <th>Ente Emisor</th>
+              <th onclick="sortReq('resp')">Responsable</th>
+              <th onclick="sortReq('emi')">Emisión</th>
+              <th onclick="sortReq('vto')">Vencimiento</th>
+              <th>Periodicidad</th>
+              <th onclick="sortReq('status')">Estado</th>
+              <th>Acciones</th>
+            </tr></thead>
+            <tbody id="req-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── CHOFERES Y FLOTA ── -->
+      <div class="page" id="page-choferes">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Choferes y Flota</div>
+            <div class="page-sub">Documentación de recursos — Control Documentario CMQ</div>
+          </div>
+          <button class="btn btn-primary btn-sm admin-only editor-only" onclick="openNewChofer()">+ Nuevo recurso</button>
+        </div>
+
+        <div class="filters-bar">
+          <div class="search-box">
+            <input type="text" id="ch-search" placeholder="Buscar chofer o patente..." oninput="filterChoferes()">
+          </div>
+          <div>
+            <label>Tipo</label>
+            <select id="ch-tipo" onchange="filterChoferes()">
+              <option value="">Todos</option>
+              <option>Chofer Habitual</option>
+              <option>Chofer Eventual</option>
+              <option>Vehículo Tractor</option>
+              <option>Acoplado</option>
+            </select>
+          </div>
+          <div>
+            <label>Estado doc.</label>
+            <select id="ch-status" onchange="filterChoferes()">
+              <option value="">Todos</option>
+              <option>Completo</option>
+              <option>Pendiente</option>
+              <option>Vencido</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead><tr>
+              <th>Recurso</th><th>Tipo</th><th>CUIL/Patente</th>
+              <th>Licencia</th><th>ART + CNR</th><th>Recibo/Monot.</th>
+              <th>Inducción CMQ</th><th>Capacitación</th><th>EPP</th>
+              <th>Estado</th><th>Acciones</th>
+            </tr></thead>
+            <tbody id="ch-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ── NOTIFICACIONES ── -->
+      <div class="page" id="page-notificaciones">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Notificaciones por Email</div>
+            <div class="page-sub">Envío manual y configuración de alertas automáticas</div>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px">
+          <div>
+            <div class="section-divider">✉ Enviar notificación manual</div>
+            <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px">
+              <div class="form-group">
+                <label>Destinatario</label>
+                <select id="notif-dest">
+                  <option value="">Seleccionar responsable...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Tipo de alerta</label>
+                <select id="notif-tipo">
+                  <option value="vencidos">Documentos vencidos</option>
+                  <option value="proximos30">Próximos 30 días</option>
+                  <option value="proximos15">Próximos 15 días</option>
+                  <option value="todos">Todos sus documentos</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Mensaje adicional (opcional)</label>
+                <textarea id="notif-msg" rows="3" placeholder="Agregar texto al mail..."></textarea>
+              </div>
+              <button class="btn btn-primary" onclick="previewEmail()">👁 Vista previa del email</button>
+              <button class="btn btn-success" style="margin-left:8px" onclick="sendEmail()">📤 Enviar notificación</button>
+            </div>
+          </div>
+          <div>
+            <div class="section-divider">👁 Vista previa del email</div>
+            <div class="email-preview" id="email-preview-box">Seleccioná un destinatario y tipo de alerta para ver la vista previa del email.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px">
+          <div class="section-divider">⚙ Configuración de alertas automáticas</div>
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px">
+            <div class="alert alert-warning">💡 Las alertas automáticas requieren integración con un servidor de correo. En este prototipo podés generar el texto del email y copiarlo.</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Días antes del vencimiento</label>
+                <select id="auto-dias">
+                  <option>30</option><option>15</option><option>7</option><option>3</option>
+                </select>
+                <div class="help-text">Enviar alerta X días antes de vencer</div>
+              </div>
+              <div class="form-group">
+                <label>Frecuencia del reporte general</label>
+                <select id="auto-freq">
+                  <option>Semanal (lunes)</option>
+                  <option>Quincenal</option>
+                  <option>Mensual (primer lunes)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Email de administración (copia siempre)</label>
+              <input type="email" id="auto-admin-email" value="edu.diaz@beccacece.com.ar">
+            </div>
+            <button class="btn btn-primary" onclick="saveAlertConfig()">Guardar configuración</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HISTORIAL ── -->
+      <div class="page" id="page-historial">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Historial de Actualizaciones</div>
+            <div class="page-sub">Registro de cambios y cargas de documentación</div>
+          </div>
+        </div>
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px">
+          <div id="historial-list"></div>
+        </div>
+      </div>
+
+      <!-- ── USUARIOS ── -->
+      <div class="page" id="page-usuarios">
+        <div class="page-header">
+          <div>
+            <div class="page-title">Usuarios y Permisos</div>
+            <div class="page-sub">Gestión de accesos al sistema</div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="openNewUser()">+ Nuevo usuario</button>
+        </div>
+
+        <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px; margin-bottom:20px">
+          <div class="section-divider">🔐 Permisos por rol</div>
+          <table style="font-size:12px">
+            <thead><tr>
+              <th>Función</th><th>Administrador</th><th>Editor SyH</th><th>Editor Admin</th><th>Solo Lectura</th>
+            </tr></thead>
+            <tbody>
+              <tr><td>Ver documentos</td><td>✅</td><td>✅</td><td>✅</td><td>✅</td></tr>
+              <tr><td>Cargar evidencias</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+              <tr><td>Crear requisitos</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+              <tr><td>Editar requisitos</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+              <tr><td>Eliminar requisitos</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+              <tr><td>Enviar notificaciones</td><td>✅</td><td>✅</td><td>✅</td><td>❌</td></tr>
+              <tr><td>Gestionar usuarios y responsables</td><td>✅</td><td>❌</td><td>❌</td><td>❌</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- RESPONSABLES -->
+        <div style="margin-bottom:20px">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px">
+            <div class="section-divider" style="flex:1; margin-bottom:0">👤 Responsables de requisitos</div>
+            <button class="btn btn-success btn-sm" style="margin-left:16px" onclick="openNewResp()">+ Agregar responsable</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead><tr>
+                <th>Nombre</th><th>Email</th><th>Área</th><th>Documentos asignados</th><th>Acciones</th>
+              </tr></thead>
+              <tbody id="resp-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- USUARIOS DEL SISTEMA -->
+        <div class="section-divider">🖥 Usuarios del sistema (acceso web)</div>
+        <div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:16px" id="users-grid"></div>
+      </div>
+
+    </div><!-- /main-content -->
+  </div><!-- /layout -->
+</div><!-- /app -->
+
+<!-- ── MODALS ── -->
+
+<!-- Cargar/Editar Requisito -->
+<div class="modal-overlay" id="modal-req">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-req-title">Nuevo Requisito Legal</div>
+      <button class="modal-close" onclick="closeModal('modal-req')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="req-id">
+      <div class="section-divider">📋 Identificación del documento</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Categoría *</label>
+          <select id="r-cat">
+            <option>GENERAL NEGOCIO</option>
+            <option>AMBIENTAL</option>
+            <option>SERVICIOS EXTERNOS</option>
+            <option>REQUISITOS MUNICIPAL ESTUDIO</option>
+            <option>SISTEMA DE EMERGENCIAS</option>
+            <option>LEY 19587 / DEC 351/97</option>
+            <option>VEHÍCULOS</option>
+            <option>CONTROL DOCUMENTARIO CMQ</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Aplica a</label>
+          <select id="r-aplica">
+            <option>CD</option><option>Personal</option><option>Vehicular</option>
+            <option>General</option><option>SeH</option><option>Ambiental</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Requisito de</label>
+          <select id="r-reqde">
+            <option>Municipal</option><option>AFIP/ARCA</option><option>Seguro</option>
+            <option>ART</option><option>OPDS</option><option>SRT</option><option>Servicios</option><option>Estudios</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Periodicidad *</label>
+          <select id="r-periodo">
+            <option>NO VENCE</option><option>Mensual</option><option>Bimestral</option>
+            <option>Semestral</option><option>Anual</option><option>Bianual</option>
+            <option>Trianual</option><option>2-5 años</option><option>Según ingresos</option>
+            <option>Según modificaciones</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Nombre del documento *</label>
+        <input type="text" id="r-doc" placeholder="Ej: Seguro RC - Responsabilidad Civil">
+      </div>
+      <div class="form-group">
+        <label>Detalle / descripción</label>
+        <input type="text" id="r-detalle" placeholder="Descripción completa del documento">
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Ente Emisor</label>
+          <input type="text" id="r-emisor" placeholder="Ej: HDI Seguros">
+        </div>
+        <div class="form-group">
+          <label>Nº Póliza / Referencia</label>
+          <input type="text" id="r-poliza" placeholder="Número de referencia">
+        </div>
+      </div>
+
+      <div class="section-divider">👤 Responsable y fechas</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Responsable *</label>
+          <select id="r-resp">
+            <option value="">— Seleccionar —</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Prioridad</label>
+          <select id="r-prior">
+            <option value="critico">🔴 Crítico</option>
+            <option value="alto">🟡 Alto</option>
+            <option value="medio" selected>🟢 Medio</option>
+            <option value="bajo">⚪ Bajo</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fecha de emisión</label>
+          <input type="date" id="r-femi">
+        </div>
+        <div class="form-group">
+          <label>Fecha de vencimiento</label>
+          <input type="date" id="r-fvto">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Link de referencia (norma, organismo)</label>
+        <input type="text" id="r-link" placeholder="https://...">
+      </div>
+
+      <div class="section-divider">📎 Evidencia / Documentación</div>
+      <div class="form-group">
+        <label>Estado actual</label>
+        <select id="r-status">
+          <option>VIGENTE</option><option>ACTUALIZAR</option>
+          <option>VENCIDO</option><option>NO VENCE</option><option>EN TRÁMITE</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Ruta de archivo (en servidor / link)</label>
+        <input type="text" id="r-ruta" placeholder="Ej: REQUISITOS LEGALES\seguros\2026\RC.pdf">
+      </div>
+      <div class="form-group">
+        <label>Subir archivo de evidencia</label>
+        <div class="upload-area" onclick="document.getElementById('file-req').click()">
+          <div class="upload-icon">📄</div>
+          <div class="upload-text">Hacé clic para subir o arrastrar el archivo</div>
+          <div class="upload-sub">PDF, PNG, JPG hasta 10MB</div>
+          <input type="file" id="file-req" accept=".pdf,.png,.jpg,.jpeg" onchange="onFileSelect(this,'file-preview-req','file-name-req','file-size-req')">
+        </div>
+        <div class="file-preview" id="file-preview-req">
+          <span>📄</span>
+          <span class="file-name" id="file-name-req"></span>
+          <span class="file-size" id="file-size-req"></span>
+          <span class="file-remove" onclick="removeFile('file-req','file-preview-req')">✕</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Observaciones</label>
+        <textarea id="r-obs" rows="2" placeholder="Notas adicionales sobre este requisito..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-req')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveReq()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nueva entrada de historial / Ver detalle -->
+<div class="modal-overlay" id="modal-detail">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detail-title">Detalle del Requerimiento</div>
+      <button class="modal-close" onclick="closeModal('modal-detail')">✕</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-detail')">Cerrar</button>
+      <button class="btn btn-primary editor-only admin-only" id="detail-edit-btn">✏ Editar</button>
+      <button class="btn btn-success editor-only admin-only" id="detail-upload-btn">📎 Cargar evidencia</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nuevo usuario -->
+<div class="modal-overlay" id="modal-user">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-header">
+      <div class="modal-title">Nuevo Usuario</div>
+      <button class="modal-close" onclick="closeModal('modal-user')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" id="nu-name">
+        </div>
+        <div class="form-group">
+          <label>Usuario (login)</label>
+          <input type="text" id="nu-user">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contraseña</label>
+          <input type="password" id="nu-pass">
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" id="nu-email">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rol</label>
+          <select id="nu-role">
+            <option value="admin">Administrador</option>
+            <option value="editor">Editor SyH</option>
+            <option value="editor_admin">Editor Admin</option>
+            <option value="viewer">Solo lectura</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Área</label>
+          <input type="text" id="nu-area" placeholder="Ej: Seguridad e Higiene">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-user')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveUser()">Crear usuario</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nuevo/Editar responsable -->
+<div class="modal-overlay" id="modal-resp">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-resp-title">Nuevo Responsable</div>
+      <button class="modal-close" onclick="closeModal('modal-resp')">✕</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="resp-edit-id">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre completo *</label>
+          <input type="text" id="rp-nombre" placeholder="Apellido, Nombre">
+        </div>
+        <div class="form-group">
+          <label>Área / Sector</label>
+          <input type="text" id="rp-area" placeholder="Ej: Seguridad e Higiene">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email de contacto</label>
+        <input type="email" id="rp-email" placeholder="nombre@beccacece.com.ar">
+      </div>
+      <div class="alert alert-warning" style="margin-top:8px">
+        Al guardar, este responsable estará disponible en todos los selectores de asignación de documentos.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-resp')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveResp()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="toast-container" id="toasts"></div>
+
+<script>
+// ─────────────────────────────────────────────
+//  DATA
+// ─────────────────────────────────────────────
+
+const USERS = [
+  { user:'admin', pass:'admin2024', name:'Eduardo Díaz', role:'admin', email:'edu.diaz@beccacece.com.ar', area:'Seguridad e Higiene' },
+  { user:'edu', pass:'becca2026', name:'Eduardo Díaz', role:'editor', email:'edu.diaz@beccacece.com.ar', area:'Seguridad e Higiene' },
+  { user:'mirta', pass:'gestion25', name:'Mirta Gallardo', role:'editor_admin', email:'mirta@beccacece.com.ar', area:'Administración' },
+  { user:'viewer', pass:'ver2026', name:'Nicolás Viewer', role:'viewer', email:'viewer@beccacece.com.ar', area:'Gerencia' },
+];
+
+// Lista maestra de responsables (independiente de usuarios del sistema)
+let RESPONSABLES = [
+  { id:1, nombre:'Eduardo Díaz',    email:'edu.diaz@beccacece.com.ar',  area:'Seguridad e Higiene' },
+  { id:2, nombre:'Mirta Gallardo',  email:'mirta@beccacece.com.ar',     area:'Administración' },
+  { id:3, nombre:'Leonardo Albella',email:'lalbella@beccacece.com.ar',  area:'Operaciones / Flota' },
+  { id:4, nombre:'Fabio Gadea',     email:'fgadea@beccacece.com.ar',    area:'Ambiental' },
+  { id:5, nombre:'Fabián Arias',    email:'farias@beccacece.com.ar',    area:'Seguridad e Higiene' },
+  { id:6, nombre:'Fabián Silvera',  email:'fsilvera@beccacece.com.ar',  area:'RRHH' },
+  { id:7, nombre:'Lucas Medina',    email:'lmedina@beccacece.com.ar',   area:'Operaciones' },
+  { id:8, nombre:'Leonardo Frasso', email:'lfrasso@beccacece.com.ar',   area:'Logística' },
+];
+
+// Requirements data based on the actual Excel
+let REQS = [
+  // GENERAL NEGOCIO
+  { id:1, cat:'GENERAL NEGOCIO', aplica:'CD', reqde:'Municipal', doc:'Estatuto Comercial', detalle:'Estatuto comercial - modificado por cambio de objeto IGJ', emisor:'Escribano Lagomarsino', poliza:'', periodo:'NO VENCE', resp:'Mirta Gallardo', femi:'', fvto:'', status:'NO VENCE', ruta:'REQUISITOS LEGALES\\ADMINISTRACION\\ESTATUTO', link:'', obs:'Modificado por modificación de objeto comercial', prior:'medio' },
+  { id:2, cat:'GENERAL NEGOCIO', aplica:'CD', reqde:'Municipal', doc:'Habilitación Municipal', detalle:'Cédula de habilitación comercial municipal', emisor:'Municipalidad de Moreno', poliza:'PENDIENTE', periodo:'NO VENCE', resp:'Mirta Gallardo', femi:'2023-01-14', fvto:'2027-03-28', status:'VIGENTE', ruta:'Hab. Mun', link:'https://moreno.gob.ar/docs/R1/codigo1435.pdf', obs:'', prior:'critico' },
+  { id:3, cat:'GENERAL NEGOCIO', aplica:'CD', reqde:'Municipal', doc:'Contrato de Alquiler', detalle:'Contrato actualizado con Felhu SA - Escribano Lagomarsino', emisor:'Escribano Lagomarsino', poliza:'', periodo:'Bianual', resp:'Mirta Gallardo', femi:'2021-12-12', fvto:'2027-11-01', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\ADMINISTRACION\\COTRATO LOCACIÓN.pdf', link:'', obs:'Armar nuevo contrato con cambio impositivo VTO 2025', prior:'alto' },
+  { id:4, cat:'GENERAL NEGOCIO', aplica:'CD', reqde:'Municipal', doc:'REBA', detalle:'Registro Provincial Comercialización de Bebidas Alcohólicas Bs.As.', emisor:'REBA', poliza:'', periodo:'Anual', resp:'Mirta Gallardo', femi:'2024-07-20', fvto:'2026-10-11', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\ADMINISTRACION\\Reba Beccacece.pdf', link:'https://reba.mseg.gba.gov.ar/comercializacion.html', obs:'', prior:'critico' },
+  { id:5, cat:'GENERAL NEGOCIO', aplica:'Personal', reqde:'Bromatología', doc:'Carnet Manipulación Alimentos', detalle:'Certificado de Salud - Unidades Sanitarias', emisor:'Municipio correspondiente', poliza:'', periodo:'Trianual', resp:'Mirta Gallardo', femi:'2024-03-01', fvto:'2027-03-01', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\ADMINISTRACION\\carnet manipulador', link:'', obs:'', prior:'medio' },
+  { id:6, cat:'GENERAL NEGOCIO', aplica:'CD', reqde:'AFIP/ARCA', doc:'Inscripción CUIT', detalle:'Constancia de CUIT vigente', emisor:'AFIP', poliza:'', periodo:'NO VENCE', resp:'Mirta Gallardo', femi:'2026-04-24', fvto:'2026-05-24', status:'ACTUALIZAR', ruta:'REQUISITOS LEGALES\\ADMINISTRACION\\Constancia Inscripcion.pdf', link:'', obs:'', prior:'alto' },
+  { id:7, cat:'GENERAL NEGOCIO', aplica:'CD', reqde:'Seguro', doc:'Seguro RC', detalle:'Responsabilidad Civil y Técnico de establecimiento', emisor:'HDI Seguros', poliza:'26120', periodo:'Anual', resp:'Mirta Gallardo', femi:'2025-01-28', fvto:'2026-05-20', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\seguros\\2025\\rc bk 1\\RC BK 20-05-2026.pdf', link:'', obs:'', prior:'critico' },
+  { id:8, cat:'GENERAL NEGOCIO', aplica:'CD', reqde:'Seguro', doc:'Seguro por Incendio', detalle:'Todo riesgo establecimiento', emisor:'HDI Seguros', poliza:'135852', periodo:'Anual', resp:'Mirta Gallardo', femi:'2025-01-28', fvto:'2026-05-20', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\seguros\\2025\\todo riesgo bk 1\\INCENDIO.pdf', link:'', obs:'', prior:'critico' },
+  { id:9, cat:'GENERAL NEGOCIO', aplica:'CD', reqde:'Seguro', doc:'Seguro en el Transporte', detalle:'Responsabilidad de mercadería en el transporte', emisor:'ALLIANZ', poliza:'260020948126', periodo:'Anual', resp:'Mirta Gallardo', femi:'2025-02-15', fvto:'2026-12-01', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\seguros\\2026\\transporte bk', link:'', obs:'', prior:'alto' },
+  { id:10, cat:'GENERAL NEGOCIO', aplica:'General', reqde:'Seguro', doc:'Seguro de Vida Obligatorio', detalle:'Life Seguros', emisor:'LIFE', poliza:'108172', periodo:'Mensual', resp:'Mirta Gallardo', femi:'2024-11-01', fvto:'2026-02-01', status:'VENCIDO', ruta:'', link:'', obs:'', prior:'critico' },
+  { id:11, cat:'GENERAL NEGOCIO', aplica:'General', reqde:'ART', doc:'Contrato ART', detalle:'Renovación automática - ASOCIART ART', emisor:'ASOCIART ART', poliza:'Póliza digital 5284975', periodo:'Anual', resp:'Mirta Gallardo', femi:'2024-04-01', fvto:'2026-05-01', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\ART\\RENOVACION AUTOMATICA.pdf', link:'', obs:'Renovación automática', prior:'critico' },
+  // AMBIENTAL
+  { id:12, cat:'AMBIENTAL', aplica:'Ambiental', reqde:'OPDS', doc:'Inscripción OPDS', detalle:'Certificado de inscripción en OPDS', emisor:'OPDS', poliza:'', periodo:'NO VENCE', resp:'Fabio Gadea', femi:'2024-01-08', fvto:'2027-03-20', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\AMBIENTAL\\TRAMITE OPDS.pdf', link:'http://ojs.opds.gba.gov.ar', obs:'', prior:'alto' },
+  { id:13, cat:'AMBIENTAL', aplica:'Ambiental', reqde:'OPDS', doc:'Tasa y Habilitación OPDS', detalle:'Pago de tasa y habilitación ambiental - Consultora SEPA', emisor:'OPDS - SEPA Ambiental', poliza:'', periodo:'Anual', resp:'Fabio Gadea', femi:'2025-12-20', fvto:'2027-03-20', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\AMBIENTAL\\2026\\OPDS R.RE 2026.pdf', link:'', obs:'', prior:'alto' },
+  { id:14, cat:'AMBIENTAL', aplica:'Ambiental', reqde:'OPDS', doc:'Certificado Disposición Final - Hidrocarburos', detalle:'Hidrocarburos sólidos y líquidos', emisor:'OPDS', poliza:'', periodo:'Según necesidad', resp:'Leonardo Albella', femi:'2025-05-15', fvto:'2026-05-10', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\AMBIENTAL\\2025\\MANIFIESTOS\\CERTIFICADO.pdf', link:'', obs:'', prior:'alto' },
+  { id:15, cat:'AMBIENTAL', aplica:'Ambiental', reqde:'OPDS', doc:'Certificado Disposición Cubiertas', detalle:'Certificado disposición final cubiertas', emisor:'', poliza:'', periodo:'Según necesidad', resp:'Leonardo Albella', femi:'2025-09-10', fvto:'2026-09-10', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\AMBIENTAL\\2025\\MANIFIESTOS\\cubiertas 2025.pdf', link:'', obs:'', prior:'medio' },
+  { id:16, cat:'AMBIENTAL', aplica:'Ambiental', reqde:'Municipal', doc:'Inscripción GIRSU', detalle:'Inscripción como grandes generadores de residuos', emisor:'GIRSU', poliza:'', periodo:'NO VENCE', resp:'Fabio Gadea', femi:'2025-02-04', fvto:'2027-03-24', status:'VIGENTE', ruta:'', link:'https://sibom.slyt.gba.gob.ar/bulletins/4237/contents/1490499', obs:'', prior:'medio' },
+  { id:17, cat:'AMBIENTAL', aplica:'Ambiental', reqde:'Municipal', doc:'Plan de Manejo Residuos GIRSU (DDJJ)', detalle:'Declaración Jurada residuos sólidos', emisor:'GIRSU', poliza:'', periodo:'Anual', resp:'Fabio Gadea', femi:'2026-01-17', fvto:'2027-04-05', status:'VIGENTE', ruta:'', link:'', obs:'', prior:'alto' },
+  // SERVICIOS EXTERNOS
+  { id:18, cat:'SERVICIOS EXTERNOS', aplica:'General', reqde:'Servicios', doc:'Servicio Emergencias Médicas', detalle:'Contrato Presencia Médica', emisor:'Presencia Médica', poliza:'', periodo:'NO VENCE', resp:'Mirta Gallardo', femi:'2024-11-01', fvto:'2027-03-21', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\SERVICIO SALUD\\CONTRATO.pdf', link:'', obs:'', prior:'medio' },
+  { id:19, cat:'SERVICIOS EXTERNOS', aplica:'General', reqde:'Servicios', doc:'Seguridad e Higiene (Contrato)', detalle:'Contrato servicio externo SyH - Lic. Viviana Vigne', emisor:'Viviana Vigne', poliza:'', periodo:'NO VENCE', resp:'Fabián Arias', femi:'2024-11-01', fvto:'2027-03-20', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\ADMINISTRACION\\CONTRATO ANUAL H Y S VIVIVANA VIGNE.pdf', link:'', obs:'', prior:'medio' },
+  { id:20, cat:'SERVICIOS EXTERNOS', aplica:'General', reqde:'Servicios', doc:'Medicina Laboral (Contrato)', detalle:'Contrato Sumo SA', emisor:'Sumo SA', poliza:'', periodo:'NO VENCE', resp:'Mirta Gallardo', femi:'2023-12-08', fvto:'2027-03-20', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\ADMINISTRACION\\CONTRATO SUMO 2024.pdf', link:'', obs:'', prior:'medio' },
+  // REQUISITOS MUNICIPAL ESTUDIO
+  { id:21, cat:'REQUISITOS MUNICIPAL ESTUDIO', aplica:'CD', reqde:'Municipal', doc:'Estudio Físico Químico de Agua', detalle:'Análisis Físico Químico - Municipalidad de Moreno', emisor:'Municipalidad de Moreno', poliza:'', periodo:'Anual', resp:'Mirta Gallardo', femi:'2025-05-15', fvto:'2026-04-15', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\CD\\BACTERIOLOGICO AGUA VTO 15-11-25.pdf', link:'', obs:'Reasignado desde Flavia Leale — 27/06/2026', prior:'alto' },
+  { id:22, cat:'REQUISITOS MUNICIPAL ESTUDIO', aplica:'CD', reqde:'Municipal', doc:'Estudio Bacteriológico de Agua', detalle:'Análisis Bacteriológico semestral', emisor:'Municipalidad de Moreno', poliza:'', periodo:'Semestral', resp:'Mirta Gallardo', femi:'2026-03-01', fvto:'2026-09-02', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\CD\\BACTERIOLOGICO 032026.pdf', link:'', obs:'', prior:'alto' },
+  { id:23, cat:'REQUISITOS MUNICIPAL ESTUDIO', aplica:'CD', reqde:'Municipal', doc:'Control de Plagas - Pago Municipal', detalle:'Pago municipal control de plagas SABA', emisor:'SABA', poliza:'', periodo:'Mensual', resp:'Mirta Gallardo', femi:'2025-05-05', fvto:'2026-04-30', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\AMBIENTAL\\SABA BECCACECE ENERO - MARZO 2026.pdf', link:'', obs:'', prior:'alto' },
+  // SISTEMA DE EMERGENCIAS
+  { id:24, cat:'SISTEMA DE EMERGENCIAS', aplica:'SeH', reqde:'SRT', doc:'Plan de Contingencias - Evacuación', detalle:'Plan de evacuación y contingencias PBA', emisor:'Lic. Viviana Vigne (SEH)', poliza:'RIOS', periodo:'Anual', resp:'Fabián Arias', femi:'2025-01-15', fvto:'2026-01-15', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2025\\PLAN CONTINGENCIA\\PLAN.pdf', link:'http://servicios.infoleg.gob.ar/infolegInternet/anexos/30000-34999/32030/texact.htm', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'critico' },
+  { id:25, cat:'SISTEMA DE EMERGENCIAS', aplica:'SeH', reqde:'SRT', doc:'Estudio de Carga de Fuego', detalle:'Actualización de cálculos según condiciones actuales', emisor:'SEH', poliza:'', periodo:'Anual', resp:'Fabián Arias', femi:'2026-01-15', fvto:'2027-09-01', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2026\\ESTUDIO CARGA DE FUEGO 2026.pdf', link:'', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'alto' },
+  { id:26, cat:'SISTEMA DE EMERGENCIAS', aplica:'SeH', reqde:'SRT', doc:'Simulacro de Evacuación', detalle:'Práctica Evacuatoria semestral', emisor:'SEH - Viviana Vigne', poliza:'', periodo:'Semestral', resp:'Eduardo Díaz', femi:'2025-05-05', fvto:'2025-11-05', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2025\\SIMULACRO.pdf', link:'', obs:'Pendiente simulacro H2 2025', prior:'critico' },
+  { id:27, cat:'SISTEMA DE EMERGENCIAS', aplica:'SeH', reqde:'SRT', doc:'Recarga de Extintores', detalle:'Recarga equipos lucha contra incendios - Matafuegos Petrini', emisor:'Matafuegos Petrini', poliza:'', periodo:'Anual', resp:'Eduardo Díaz', femi:'2025-05-05', fvto:'2026-04-25', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\RENOVACION EXTINTORES\\EXT VTO 25-26.pdf', link:'', obs:'', prior:'critico' },
+  // LEY 19587 / DEC 351
+  { id:28, cat:'LEY 19587 / DEC 351/97', aplica:'SeH', reqde:'ART', doc:'RGRL - Relevamiento General de Riesgos Laborales', detalle:'DDJJ RGRL - ASOCIART ART', emisor:'ASOCIART ART', poliza:'', periodo:'Según modificaciones', resp:'Fabián Arias', femi:'2024-07-15', fvto:'2026-12-18', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\ART\\RGRL BECCACECE.pdf', link:'http://servicios.infoleg.gob.ar/infolegInternet/anexos/150000-154999/153431/texact.htm', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'alto' },
+  { id:29, cat:'LEY 19587 / DEC 351/97', aplica:'SeH', reqde:'ART', doc:'RAR - Relevamiento Anual de Riesgos Res SRT 463/09', detalle:'DDJJ Relevamiento Anual de Riesgos', emisor:'ASOCIART ART', poliza:'', periodo:'Semestral', resp:'Fabián Arias', femi:'2026-03-10', fvto:'2027-03-10', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2026\\RGRL Y RAR BECCACECE.pdf', link:'', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'alto' },
+  { id:30, cat:'LEY 19587 / DEC 351/97', aplica:'Personal', reqde:'Estudios', doc:'Estudios Periódicos', detalle:'Estudios periódicos personal expuesto a agentes de riesgo', emisor:'ART', poliza:'', periodo:'Anual', resp:'Fabián Arias', femi:'2025-08-06', fvto:'2027-03-20', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2026\\ESTUDIOS PERIODICOS.pdf', link:'', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'medio' },
+  { id:31, cat:'LEY 19587 / DEC 351/97', aplica:'SeH', reqde:'SRT', doc:'Estudio Ergonómico', detalle:'Análisis ergonómico de puestos de trabajo - Res 886/15', emisor:'Viviana Vigne (SEH)', poliza:'', periodo:'Anual', resp:'Fabián Arias', femi:'2026-03-01', fvto:'2027-03-01', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2026\\ACTUALIZACION ERGONOMIA.pdf', link:'', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'medio' },
+  { id:32, cat:'LEY 19587 / DEC 351/97', aplica:'SeH', reqde:'SRT', doc:'Estudio de Iluminación', detalle:'Protocolo medición iluminación - Res. 84/2012', emisor:'SEH', poliza:'', periodo:'Anual', resp:'Fabián Arias', femi:'2025-04-28', fvto:'2026-04-28', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2025\\iluminacion\\PROTOCOLO.pdf', link:'', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'alto' },
+  { id:33, cat:'LEY 19587 / DEC 351/97', aplica:'SeH', reqde:'SRT', doc:'Estudio de Ruido', detalle:'Nivel sonoro ambiente laboral', emisor:'SEH', poliza:'', periodo:'Anual', resp:'Fabián Arias', femi:'2025-05-09', fvto:'2026-05-09', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2025\\MEDICIONES RUIDOS\\ESTUDIO.pdf', link:'', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'alto' },
+  { id:34, cat:'LEY 19587 / DEC 351/97', aplica:'SeH', reqde:'SRT', doc:'Medición Puesta a Tierra', detalle:'Verificación PAT y continuidad de masas Res SRT 900/15', emisor:'SEH', poliza:'', periodo:'Anual', resp:'Fabián Arias', femi:'2025-05-09', fvto:'2026-05-09', status:'VENCIDO', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2025\\ANEXO 6 PAT.pdf', link:'', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'alto' },
+  { id:35, cat:'LEY 19587 / DEC 351/97', aplica:'SeH', reqde:'SRT', doc:'Estudio Estructural Rack', detalle:'Verificación estructural racks', emisor:'Ing. Lulking Pablo', poliza:'', periodo:'Anual', resp:'Fabián Arias', femi:'2024-06-05', fvto:'2026-04-28', status:'VENCIDO', ruta:'', link:'', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'alto' },
+  { id:36, cat:'LEY 19587 / DEC 351/97', aplica:'SeH', reqde:'SRT', doc:'Verificaciones de Rack', detalle:'Control trimestral de racks', emisor:'', poliza:'', periodo:'NO VENCE', resp:'Fabián Arias', femi:'2025-11-10', fvto:'2027-03-20', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2026\\RACKS\\CONTROL RACKS ENERO - MARZO 2026.pdf', link:'', obs:'Reasignado desde Viviana Vigne — 27/06/2026', prior:'medio' },
+  { id:37, cat:'LEY 19587 / DEC 351/97', aplica:'SeH', reqde:'SRT', doc:'Habilitación de Compresor', detalle:'Vida útil 30 años - Malvala consultora ambiental', emisor:'Malvala consultora ambiental', poliza:'', periodo:'30 años', resp:'Leonardo Albella', femi:'2010-04-20', fvto:'2040-04-20', status:'VIGENTE', ruta:'REQUISITOS LEGALES\\SERVICIO SEH\\2025\\BECCACECE-HNOS-SA-Informe-ASP-2025.pdf', link:'', obs:'', prior:'medio' },
+];
+
+let filteredReqs = [...REQS];
+let currentUser = null;
+
+// Historial log (en memoria)
+let HISTORIAL = [
+  { date:'2026-06-27', user:'Eduardo Díaz', action:'Reasignó 10 documentos de Viviana Vigne → Fabián Arias (SEH)', doc:'Múltiples requisitos' },
+  { date:'2026-06-27', user:'Eduardo Díaz', action:'Reasignó Estudio Físico Químico de Agua: Flavia Leale → Mirta Gallardo', doc:'Estudio Físico Químico de Agua' },
+  { date:'2026-06-20', user:'Eduardo Díaz', action:'Actualizó estado de Simulacro de Evacuación → VENCIDO', doc:'Simulacro de Evacuación' },
+  { date:'2026-06-18', user:'Mirta Gallardo', action:'Cargó póliza Seguro en el Transporte ALLIANZ 2026', doc:'Seguro en el Transporte' },
+  { date:'2026-06-15', user:'Eduardo Díaz', action:'Marcó Plan de Contingencias como VENCIDO, inició renovación', doc:'Plan de Contingencias' },
+  { date:'2026-06-10', user:'Mirta Gallardo', action:'Subió Estudio de Ergonomía 2026', doc:'Estudio Ergonómico' },
+  { date:'2026-06-05', user:'Eduardo Díaz', action:'Envió notificación de vencimientos a equipo SEH', doc:'—' },
+  { date:'2026-05-28', user:'Mirta Gallardo', action:'Actualizó RAR - Relevamiento Anual de Riesgos 2026', doc:'RAR Res SRT 463/09' },
+];
+
+// Choferes (datos de ejemplo Control Documentario CMQ)
+let CHOFERES = [
+  { id:1, nombre:'Rodríguez, Carlos', tipo:'Chofer Habitual', cuil:'20-28456789-3', licencia:'2027-05-10', art:'2026-07-14', recibo:'2026-06-15', induccion:'SIN NOVEDAD', capacitacion:'2026-03-01', epp:'2026-11-01', estado:'Completo' },
+  { id:2, nombre:'García, Marcos', tipo:'Chofer Habitual', cuil:'20-32156789-1', licencia:'2026-08-20', art:'2026-07-14', recibo:'2026-06-15', induccion:'SIN NOVEDAD', capacitacion:'2025-11-15', epp:'2026-01-10', estado:'Pendiente' },
+  { id:3, nombre:'López, Héctor', tipo:'Chofer Eventual', cuil:'23-30456781-4', licencia:'2027-01-05', art:'2026-07-14', recibo:'2026-06-15', induccion:'SIN NOVEDAD', capacitacion:'2026-01-20', epp:'N/A', estado:'Completo' },
+  { id:4, nombre:'AE962OJ', tipo:'Vehículo Tractor', cuil:'AE962OJ', licencia:'N/A', art:'N/A', recibo:'N/A', induccion:'N/A', capacitacion:'N/A', epp:'N/A', estado:'Vencido', vtv:'2026-04-15', seguro:'2026-12-01', checklist:'2026-06-03' },
+  { id:5, nombre:'MRP648', tipo:'Vehículo Tractor', cuil:'MRP648', licencia:'N/A', art:'N/A', recibo:'N/A', induccion:'N/A', capacitacion:'N/A', epp:'N/A', estado:'Completo', vtv:'2026-11-20', seguro:'2026-12-01', checklist:'2026-06-15' },
+];
+
+const TODAY = new Date('2026-06-27');
+
+function daysBetween(d1, d2) {
+  if (!d2) return null;
+  const t1 = new Date(d1), t2 = new Date(d2);
+  return Math.floor((t2 - t1) / (1000*60*60*24));
+}
+
+function formatDate(str) {
+  if (!str) return '—';
+  const d = new Date(str);
+  return d.toLocaleDateString('es-AR', {day:'2-digit', month:'2-digit', year:'numeric'});
+}
+
+function computeStatus(req) {
+  if (req.status === 'NO VENCE' || req.periodo === 'NO VENCE') return 'NO VENCE';
+  if (!req.fvto) return req.status;
+  const days = daysBetween(TODAY.toISOString().slice(0,10), req.fvto);
+  if (days < 0) return 'VENCIDO';
+  if (days <= 30) return 'PRÓXIMO';
+  return req.status === 'ACTUALIZAR' ? 'ACTUALIZAR' : 'VIGENTE';
+}
+
+function getStatusBadge(status) {
+  const map = {
+    'VIGENTE': 'badge-vigente',
+    'VENCIDO': 'badge-vencido',
+    'PRÓXIMO': 'badge-proximo',
+    'ACTUALIZAR': 'badge-actualizar',
+    'NO VENCE': 'badge-novence',
+    'EN TRÁMITE': 'badge-proximo',
+  };
+  return `<span class="badge ${map[status]||'badge-novence'}">${status}</span>`;
+}
+
+function getDaysPill(fvto, periodo) {
+  if (periodo === 'NO VENCE' || !fvto) return '<span class="days-pill days-gray">—</span>';
+  const days = daysBetween(TODAY.toISOString().slice(0,10), fvto);
+  if (days < 0) return `<span class="days-pill days-red">Vencido hace ${Math.abs(days)}d</span>`;
+  if (days <= 7) return `<span class="days-pill days-red">${days}d</span>`;
+  if (days <= 30) return `<span class="days-pill days-amber">${days}d</span>`;
+  return `<span class="days-pill days-green">${days}d</span>`;
+}
+
+// ─────────────────────────────────────────────
+//  AUTH
+// ─────────────────────────────────────────────
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const found = USERS.find(x => x.user === u && x.pass === p);
+  if (!found) {
+    document.getElementById('login-error').style.display = 'block';
+    return;
+  }
+  currentUser = found;
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  setupApp();
+}
+
+function doLogout() {
+  currentUser = null;
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+}
+
+// ─────────────────────────────────────────────
+//  APP SETUP
+// ─────────────────────────────────────────────
+
+function setupApp() {
+  // Topbar
+  document.getElementById('topbar-username').textContent = currentUser.name;
+  const rmap = { admin:'Administrador', editor:'Editor SyH', editor_admin:'Editor Admin', viewer:'Solo lectura' };
+  const rcls = { admin:'role-admin', editor:'role-editor', editor_admin:'role-editor', viewer:'role-viewer' };
+  const rb = document.getElementById('topbar-role');
+  rb.textContent = rmap[currentUser.role];
+  rb.className = `user-role-pill ${rcls[currentUser.role]}`;
+
+  // Show/hide admin elements
+  const isAdmin = currentUser.role === 'admin';
+  const isEditor = currentUser.role === 'editor' || currentUser.role === 'editor_admin' || currentUser.role === 'admin';
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = isAdmin ? '' : 'none';
+  });
+  document.querySelectorAll('.editor-only').forEach(el => {
+    el.style.display = isEditor ? '' : 'none';
+  });
+
+  // Date
+  document.getElementById('dash-date').textContent = TODAY.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  buildDashboard();
+  buildReqTable();
+  buildChoferesTable();
+  buildUsersGrid();
+  buildRespTable();
+  buildHistorial();
+  populateResponsableFilters();
+}
+
+// ─────────────────────────────────────────────
+//  DASHBOARD
+// ─────────────────────────────────────────────
+
+function buildDashboard() {
+  const vencidos = REQS.filter(r => computeStatus(r) === 'VENCIDO');
+  const proximos = REQS.filter(r => computeStatus(r) === 'PRÓXIMO');
+  const actualizar = REQS.filter(r => r.status === 'ACTUALIZAR');
+  const vigentes = REQS.filter(r => computeStatus(r) === 'VIGENTE');
+  const total = REQS.length;
+
+  // Alert indicator
+  if (vencidos.length + proximos.length > 0) {
+    document.getElementById('alert-indicator').style.display = 'flex';
+    document.getElementById('alert-count').textContent = vencidos.length + proximos.length;
+  }
+  if (vencidos.length > 0) {
+    document.getElementById('badge-vencidos').style.display = 'block';
+    document.getElementById('badge-vencidos').textContent = vencidos.length;
+  }
+
+  // Summary cards
+  const sc = document.getElementById('summary-cards');
+  sc.innerHTML = `
+    <div class="summary-card red-top">
+      <div class="summary-num s-red">${vencidos.length}</div>
+      <div class="summary-label">Documentos vencidos</div>
+      <div class="summary-sub">Requieren renovación urgente</div>
+    </div>
+    <div class="summary-card amber-top">
+      <div class="summary-num s-amber">${proximos.length}</div>
+      <div class="summary-label">Próximos a vencer</div>
+      <div class="summary-sub">En los próximos 30 días</div>
+    </div>
+    <div class="summary-card gold-top">
+      <div class="summary-num s-gold">${actualizar.length}</div>
+      <div class="summary-label">A actualizar</div>
+      <div class="summary-sub">Pendientes de carga</div>
+    </div>
+    <div class="summary-card green-top">
+      <div class="summary-num s-green">${vigentes.length}</div>
+      <div class="summary-label">Vigentes</div>
+      <div class="summary-sub">De ${total} documentos totales</div>
+    </div>
+  `;
+
+  // Vencidos table
+  const tv = document.querySelector('#tbl-vencidos tbody');
+  if (vencidos.length === 0) {
+    tv.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">✅</div><div class="empty-text">Sin documentos vencidos</div></div></td></tr>';
+  } else {
+    tv.innerHTML = vencidos.map(r => `
+      <tr>
+        <td class="td-doc">
+          <span class="priority-dot p-${r.prior}"></span>
+          <span class="doc-name">${r.doc}</span>
+          <div class="doc-detail">${r.detalle.substring(0,60)}...</div>
+        </td>
+        <td><span class="tag">${r.cat}</span></td>
+        <td>${r.resp}</td>
+        <td>${formatDate(r.fvto)}</td>
+        <td>${getStatusBadge(computeStatus(r))}</td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-primary btn-sm editor-only admin-only" onclick="openEditReq(${r.id})">📎 Cargar</button>
+            <button class="btn btn-ghost btn-sm" onclick="notifyResp(${r.id})">📧</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Proximos table
+  const tp = document.querySelector('#tbl-proximos tbody');
+  if (proximos.length === 0) {
+    tp.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">📅</div><div class="empty-text">Sin vencimientos próximos en 30 días</div></div></td></tr>';
+  } else {
+    tp.innerHTML = proximos.map(r => `
+      <tr>
+        <td class="td-doc">
+          <span class="priority-dot p-${r.prior}"></span>
+          <span class="doc-name">${r.doc}</span>
+          <div class="doc-detail">${r.detalle.substring(0,50)}</div>
+        </td>
+        <td><span class="tag">${r.cat}</span></td>
+        <td>${r.resp}</td>
+        <td>${formatDate(r.fvto)}</td>
+        <td>${getDaysPill(r.fvto, r.periodo)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // Re-apply editor visibility after rebuild
+  setupEditorVisibility();
+}
+
+// ─────────────────────────────────────────────
+//  REQUISITOS TABLE
+// ─────────────────────────────────────────────
+
+function filterReq() {
+  const s = document.getElementById('req-search').value.toLowerCase();
+  const cat = document.getElementById('req-cat').value;
+  const st = document.getElementById('req-status').value;
+  const resp = document.getElementById('req-resp').value;
+
+  filteredReqs = REQS.filter(r => {
+    const matchS = !s || r.doc.toLowerCase().includes(s) || r.detalle.toLowerCase().includes(s) || r.emisor.toLowerCase().includes(s);
+    const matchC = !cat || r.cat === cat;
+    const matchR = !resp || r.resp === resp;
+    let status = computeStatus(r);
+    const matchSt = !st || status === st || r.status === st;
+    return matchS && matchC && matchR && matchSt;
+  });
+  renderReqTable();
+}
+
+function buildReqTable() { filterReq(); }
+
+function renderReqTable() {
+  const tbody = document.getElementById('req-tbody');
+  if (filteredReqs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="9"><div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-text">No hay requisitos que coincidan con el filtro</div></div></td></tr>';
+    return;
+  }
+  const isEditor = currentUser && (currentUser.role !== 'viewer');
+  tbody.innerHTML = filteredReqs.map(r => {
+    const st = computeStatus(r);
+    return `
+      <tr>
+        <td><span class="tag">${r.cat}</span></td>
+        <td class="td-doc">
+          <span class="priority-dot p-${r.prior}"></span>
+          <span class="doc-name">${r.doc}</span>
+          <div class="doc-detail">${r.detalle.substring(0,50)}${r.detalle.length>50?'...':''}</div>
+          ${r.link ? `<a href="${r.link}" target="_blank" class="doc-link">🔗 Ver norma</a>` : ''}
+        </td>
+        <td style="font-size:12px">${r.emisor||'—'}</td>
+        <td>${r.resp}</td>
+        <td style="font-family:var(--font-mono);font-size:12px">${formatDate(r.femi)}</td>
+        <td style="font-family:var(--font-mono);font-size:12px">${r.periodo==='NO VENCE'?'NO VENCE':formatDate(r.fvto)}</td>
+        <td style="font-size:11px">${r.periodo}</td>
+        <td>${getStatusBadge(st)}<br>${getDaysPill(r.fvto, r.periodo)}</td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-ghost btn-sm" onclick="viewReq(${r.id})" title="Ver detalle">👁</button>
+            ${isEditor ? `<button class="btn btn-primary btn-sm" onclick="openEditReq(${r.id})" title="Cargar evidencia">📎</button>` : ''}
+            ${isEditor ? `<button class="btn btn-ghost btn-sm" onclick="notifyResp(${r.id})" title="Notificar responsable">📧</button>` : ''}
+            ${currentUser.role==='admin' ? `<button class="btn btn-danger btn-sm" onclick="deleteReq(${r.id})" title="Eliminar">🗑</button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+let sortCol = '';
+let sortAsc = true;
+function sortReq(col) {
+  if (sortCol === col) sortAsc = !sortAsc;
+  else { sortCol = col; sortAsc = true; }
+  const key = { cat:'cat', doc:'doc', resp:'resp', emi:'femi', vto:'fvto', status:'status' }[col];
+  filteredReqs.sort((a,b) => {
+    const va = a[key]||'', vb = b[key]||'';
+    return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+  });
+  renderReqTable();
+}
+
+// ─────────────────────────────────────────────
+//  CHOFERES TABLE
+// ─────────────────────────────────────────────
+
+function buildChoferesTable() { filterChoferes(); }
+
+function filterChoferes() {
+  const s = document.getElementById('ch-search').value.toLowerCase();
+  const tipo = document.getElementById('ch-tipo').value;
+  const st = document.getElementById('ch-status').value;
+
+  const filtered = CHOFERES.filter(c => {
+    const ms = !s || c.nombre.toLowerCase().includes(s) || c.cuil.toLowerCase().includes(s);
+    const mt = !tipo || c.tipo === tipo;
+    const mst = !st || c.estado === st;
+    return ms && mt && mst;
+  });
+
+  const tbody = document.getElementById('ch-tbody');
+  const isEditor = currentUser && currentUser.role !== 'viewer';
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="11"><div class="empty-state"><div class="empty-icon">🚛</div><div class="empty-text">Sin recursos que coincidan</div></div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(c => {
+    const est = c.estado === 'Completo' ? 'badge-vigente' : c.estado === 'Vencido' ? 'badge-vencido' : 'badge-proximo';
+    const esVehiculo = c.tipo.includes('Vehículo') || c.tipo.includes('Acoplado');
+    return `
+      <tr>
+        <td><b>${c.nombre}</b></td>
+        <td style="font-size:11px">${c.tipo}</td>
+        <td style="font-family:var(--font-mono);font-size:11px">${c.cuil}</td>
+        ${esVehiculo ? `
+          <td colspan="6" style="font-size:11px;color:var(--text-muted)">
+            VTV: ${formatDate(c.vtv)} | Seguro: ${formatDate(c.seguro)} | Checklist: ${formatDate(c.checklist)}
+          </td>
+        ` : `
+          <td style="font-size:11px">${formatDate(c.licencia)}</td>
+          <td style="font-size:11px">${formatDate(c.art)}</td>
+          <td style="font-size:11px">${formatDate(c.recibo)}</td>
+          <td style="font-size:11px">${c.induccion}</td>
+          <td style="font-size:11px">${formatDate(c.capacitacion)}</td>
+          <td style="font-size:11px">${c.epp === 'N/A' ? '<span style="color:var(--text-muted)">N/A</span>' : formatDate(c.epp)}</td>
+        `}
+        <td><span class="badge ${est}">${c.estado}</span></td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-ghost btn-sm" onclick="viewChofer(${c.id})">👁</button>
+            ${isEditor ? `<button class="btn btn-primary btn-sm">📎</button>` : ''}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function viewChofer(id) {
+  const c = CHOFERES.find(x => x.id === id);
+  if (!c) return;
+  const esVehiculo = c.tipo.includes('Vehículo') || c.tipo.includes('Acoplado');
+  document.getElementById('detail-title').textContent = c.nombre + ' — ' + c.tipo;
+  document.getElementById('detail-body').innerHTML = `
+    <table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr><td style="padding:8px;color:var(--text-muted);width:40%">Tipo</td><td>${c.tipo}</td></tr>
+      <tr><td style="padding:8px;color:var(--text-muted)">CUIL / Patente</td><td style="font-family:var(--font-mono)">${c.cuil}</td></tr>
+      ${esVehiculo ? `
+        <tr><td style="padding:8px;color:var(--text-muted)">VTV</td><td>${formatDate(c.vtv)}</td></tr>
+        <tr><td style="padding:8px;color:var(--text-muted)">Seguro</td><td>${formatDate(c.seguro)}</td></tr>
+        <tr><td style="padding:8px;color:var(--text-muted)">Checklist 360°</td><td>${formatDate(c.checklist)}</td></tr>
+      ` : `
+        <tr><td style="padding:8px;color:var(--text-muted)">Licencia de conducir</td><td>${formatDate(c.licencia)}</td></tr>
+        <tr><td style="padding:8px;color:var(--text-muted)">ART + CNR</td><td>${formatDate(c.art)}</td></tr>
+        <tr><td style="padding:8px;color:var(--text-muted)">Recibo / Monotributo</td><td>${formatDate(c.recibo)}</td></tr>
+        <tr><td style="padding:8px;color:var(--text-muted)">Inducción CMQ</td><td>${c.induccion}</td></tr>
+        <tr><td style="padding:8px;color:var(--text-muted)">Capacitación</td><td>${formatDate(c.capacitacion)}</td></tr>
+        <tr><td style="padding:8px;color:var(--text-muted)">EPP</td><td>${c.epp}</td></tr>
+      `}
+      <tr><td style="padding:8px;color:var(--text-muted)">Estado documentación</td><td><span class="badge ${c.estado==='Completo'?'badge-vigente':c.estado==='Vencido'?'badge-vencido':'badge-proximo'}">${c.estado}</span></td></tr>
+    </table>
+    <div class="alert alert-warning" style="margin-top:16px">
+      <b>Control Documentario CMQ:</b> Los documentos deben ser nítidos, legibles y veraces. 
+      Plazo de auditoría: 48hs hábiles desde la carga. Urgencias: Lun-Vie 7:00-22:00, Sáb 7:30-12:30.
+    </div>
+  `;
+  document.getElementById('detail-edit-btn').style.display = 'none';
+  openModal('modal-detail');
+}
+
+function openNewChofer() {
+  showToast('Función de alta de recursos próximamente disponible', 'info');
+}
+
+// ─────────────────────────────────────────────
+//  MODAL REQUISITO
+// ─────────────────────────────────────────────
+
+function openNewReq() {
+  document.getElementById('modal-req-title').textContent = 'Nuevo Requisito Legal';
+  document.getElementById('req-id').value = '';
+  // Clear form
+  ['r-cat','r-aplica','r-reqde','r-doc','r-detalle','r-emisor','r-poliza',
+   'r-periodo','r-resp','r-prior','r-femi','r-fvto','r-link','r-status','r-ruta','r-obs'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  openModal('modal-req');
+}
+
+function openEditReq(id) {
+  const r = REQS.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('modal-req-title').textContent = 'Editar / Cargar evidencia';
+  document.getElementById('req-id').value = id;
+  document.getElementById('r-cat').value = r.cat;
+  document.getElementById('r-aplica').value = r.aplica;
+  document.getElementById('r-reqde').value = r.reqde;
+  document.getElementById('r-doc').value = r.doc;
+  document.getElementById('r-detalle').value = r.detalle;
+  document.getElementById('r-emisor').value = r.emisor;
+  document.getElementById('r-poliza').value = r.poliza||'';
+  document.getElementById('r-periodo').value = r.periodo;
+  document.getElementById('r-resp').value = r.resp;
+  document.getElementById('r-prior').value = r.prior;
+  document.getElementById('r-femi').value = r.femi||'';
+  document.getElementById('r-fvto').value = r.fvto||'';
+  document.getElementById('r-link').value = r.link||'';
+  document.getElementById('r-status').value = r.status;
+  document.getElementById('r-ruta').value = r.ruta||'';
+  document.getElementById('r-obs').value = r.obs||'';
+  openModal('modal-req');
+}
+
+function saveReq() {
+  const id = document.getElementById('req-id').value;
+  const doc = document.getElementById('r-doc').value.trim();
+  if (!doc) { showToast('El nombre del documento es obligatorio', 'error'); return; }
+  const resp = document.getElementById('r-resp').value;
+  const fvto = document.getElementById('r-fvto').value;
+  const obj = {
+    cat: document.getElementById('r-cat').value,
+    aplica: document.getElementById('r-aplica').value,
+    reqde: document.getElementById('r-reqde').value,
+    doc, detalle: document.getElementById('r-detalle').value,
+    emisor: document.getElementById('r-emisor').value,
+    poliza: document.getElementById('r-poliza').value,
+    periodo: document.getElementById('r-periodo').value,
+    resp, prior: document.getElementById('r-prior').value,
+    femi: document.getElementById('r-femi').value,
+    fvto: document.getElementById('r-fvto').value,
+    link: document.getElementById('r-link').value,
+    status: document.getElementById('r-status').value,
+    ruta: document.getElementById('r-ruta').value,
+    obs: document.getElementById('r-obs').value,
+  };
+
+  if (id) {
+    const idx = REQS.findIndex(x => x.id === parseInt(id));
+    REQS[idx] = { ...REQS[idx], ...obj };
+    HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Actualizó "${doc}"`, doc });
+    showToast('Requisito actualizado correctamente', 'success');
+  } else {
+    const newId = Math.max(...REQS.map(x=>x.id)) + 1;
+    REQS.push({ id: newId, ...obj });
+    HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Creó nuevo requisito "${doc}"`, doc });
+    showToast('Requisito creado correctamente', 'success');
+  }
+  closeModal('modal-req');
+  buildDashboard();
+  buildReqTable();
+  buildHistorial();
+}
+
+function viewReq(id) {
+  const r = REQS.find(x => x.id === id);
+  if (!r) return;
+  const st = computeStatus(r);
+  document.getElementById('detail-title').textContent = r.doc;
+  document.getElementById('detail-body').innerHTML = `
+    <div class="form-row" style="margin-bottom:16px">
+      <div>${getStatusBadge(st)}</div>
+      <div>${getDaysPill(r.fvto, r.periodo)}</div>
+    </div>
+    <table style="width:100%;font-size:13px;border-collapse:collapse">
+      <tr><td style="padding:8px;color:var(--text-muted);width:35%">Categoría</td><td><span class="tag">${r.cat}</span></td></tr>
+      <tr><td style="padding:8px;color:var(--text-muted)">Aplica a</td><td>${r.aplica}</td></tr>
+      <tr><td style="padding:8px;color:var(--text-muted)">Requisito de</td><td>${r.reqde}</td></tr>
+      <tr><td style="padding:8px;color:var(--text-muted)">Detalle</td><td style="font-size:12px">${r.detalle}</td></tr>
+      <tr><td style="padding:8px;color:var(--text-muted)">Ente Emisor</td><td>${r.emisor||'—'}</td></tr>
+      ${r.poliza ? `<tr><td style="padding:8px;color:var(--text-muted)">Nº Póliza / Ref.</td><td style="font-family:var(--font-mono)">${r.poliza}</td></tr>` : ''}
+      <tr><td style="padding:8px;color:var(--text-muted)">Periodicidad</td><td>${r.periodo}</td></tr>
+      <tr><td style="padding:8px;color:var(--text-muted)">Responsable</td><td><b>${r.resp}</b></td></tr>
+      <tr><td style="padding:8px;color:var(--text-muted)">Fecha emisión</td><td style="font-family:var(--font-mono)">${formatDate(r.femi)}</td></tr>
+      <tr><td style="padding:8px;color:var(--text-muted)">Fecha vencimiento</td><td style="font-family:var(--font-mono);font-weight:bold">${r.periodo==='NO VENCE'?'NO VENCE':formatDate(r.fvto)}</td></tr>
+      ${r.link ? `<tr><td style="padding:8px;color:var(--text-muted)">Norma / Enlace</td><td><a href="${r.link}" target="_blank" class="doc-link">${r.link.substring(0,50)}...</a></td></tr>` : ''}
+      ${r.ruta ? `<tr><td style="padding:8px;color:var(--text-muted)">Archivo</td><td style="font-size:11px;font-family:var(--font-mono)">${r.ruta}</td></tr>` : ''}
+      ${r.obs ? `<tr><td style="padding:8px;color:var(--text-muted)">Observaciones</td><td style="font-size:12px;color:var(--amber-light)">${r.obs}</td></tr>` : ''}
+    </table>
+  `;
+  document.getElementById('detail-edit-btn').onclick = () => { closeModal('modal-detail'); openEditReq(id); };
+  document.getElementById('detail-upload-btn').onclick = () => { closeModal('modal-detail'); openEditReq(id); };
+  openModal('modal-detail');
+}
+
+function deleteReq(id) {
+  if (!confirm('¿Eliminar este requisito? Esta acción no se puede deshacer.')) return;
+  const r = REQS.find(x => x.id === id);
+  REQS.splice(REQS.findIndex(x => x.id === id), 1);
+  HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Eliminó "${r.doc}"`, doc: r.doc });
+  showToast('Requisito eliminado', 'error');
+  buildDashboard();
+  buildReqTable();
+  buildHistorial();
+}
+
+// ─────────────────────────────────────────────
+//  NOTIFICATIONS
+// ─────────────────────────────────────────────
+
+function notifyResp(reqId) {
+  const r = REQS.find(x => x.id === reqId);
+  if (!r) return;
+  nav('notificaciones');
+  document.getElementById('notif-dest').value = r.resp;
+  document.getElementById('notif-tipo').value = 'vencidos';
+  previewEmail();
+  showToast('Seleccionado responsable en Notificaciones', 'info');
+}
+
+function previewEmail() {
+  const dest = document.getElementById('notif-dest').value;
+  const tipo = document.getElementById('notif-tipo').value;
+  const msg = document.getElementById('notif-msg').value;
+  if (!dest) {
+    document.getElementById('email-preview-box').textContent = 'Seleccioná un destinatario para ver la vista previa.';
+    return;
+  }
+  const docs = REQS.filter(r => {
+    if (r.resp !== dest) return false;
+    const st = computeStatus(r);
+    if (tipo === 'vencidos') return st === 'VENCIDO' || r.status === 'ACTUALIZAR';
+    if (tipo === 'proximos30') return st === 'PRÓXIMO';
+    if (tipo === 'proximos15') { const d = daysBetween(TODAY.toISOString().slice(0,10), r.fvto); return d !== null && d >= 0 && d <= 15; }
+    return true;
+  });
+
+  const tipoLabel = { vencidos:'VENCIDOS / A ACTUALIZAR', proximos30:'PRÓXIMOS A VENCER (30 días)', proximos15:'PRÓXIMOS A VENCER (15 días)', todos:'TODOS SUS DOCUMENTOS' }[tipo];
+  const dateStr = TODAY.toLocaleDateString('es-AR', {day:'2-digit', month:'long', year:'numeric'});
+  
+  let lista = docs.length === 0 
+    ? '   (Sin documentos en esta categoría)' 
+    : docs.map(r => `   • ${r.doc}\n     Vencimiento: ${r.periodo==='NO VENCE'?'NO VENCE':formatDate(r.fvto)} | Estado: ${computeStatus(r)}`).join('\n\n');
+
+  const texto = `De: Sistema Requisitos Legales <requisitos@beccacece.com.ar>
+Para: ${dest} <responsable@beccacece.com.ar>
+CC: Eduardo Díaz <edu.diaz@beccacece.com.ar>
+Asunto: ⚠ Beccacece Hnos. — Requisitos Legales ${tipoLabel} — ${dateStr}
+
+Estimado/a ${dest},
+
+Le informamos que los siguientes documentos bajo su responsabilidad 
+se encuentran en estado: ${tipoLabel}
+
+──────────────────────────────────────────
+DOCUMENTOS ${tipoLabel}
+──────────────────────────────────────────
+
+${lista}
+
+${msg ? `\nMensaje adicional:\n${msg}\n` : ''}
+──────────────────────────────────────────
+
+Por favor, gestione la renovación o carga de evidencia a la brevedad.
+Ante dudas comuníquese con:
+
+  Eduardo Díaz | Referente de Seguridad e Higiene
+  Beccacece Hnos. S.A. — CUIT 30-52949908-2
+  La Reja, Moreno, Buenos Aires.
+
+Este mensaje fue generado automáticamente por el Sistema de Gestión
+de Requisitos Legales de Beccacece Hnos. S.A.`;
+
+  document.getElementById('email-preview-box').textContent = texto;
+}
+
+function sendEmail() {
+  const dest = document.getElementById('notif-dest').value;
+  if (!dest) { showToast('Seleccioná un destinatario', 'error'); return; }
+  previewEmail();
+  HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Envió notificación de vencimientos a ${dest}`, doc: '—' });
+  buildHistorial();
+  showToast(`Notificación enviada a ${dest}`, 'success');
+}
+
+function sendDailyReport() {
+  HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: 'Generó reporte diario de vencimientos', doc: '—' });
+  buildHistorial();
+  showToast('Reporte diario generado y copiado', 'success');
+}
+
+function saveAlertConfig() {
+  showToast('Configuración de alertas guardada', 'success');
+}
+
+// ─────────────────────────────────────────────
+//  HISTORIAL
+// ─────────────────────────────────────────────
+
+function buildHistorial() {
+  const container = document.getElementById('historial-list');
+  if (HISTORIAL.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">🕐</div><div class="empty-text">Sin historial registrado</div></div>';
+    return;
+  }
+  container.innerHTML = HISTORIAL.map(h => `
+    <div class="history-entry">
+      <div class="history-dot"></div>
+      <div>
+        <div class="history-date">${formatDate(h.date)}</div>
+        <div><span class="history-user">${h.user}</span> <span class="history-action">${h.action}</span></div>
+        ${h.doc && h.doc !== '—' ? `<div style="font-size:11px;color:var(--gold);margin-top:2px">📄 ${h.doc}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─────────────────────────────────────────────
+//  USERS
+// ─────────────────────────────────────────────
+
+function buildUsersGrid() {
+  const grid = document.getElementById('users-grid');
+  const rmap = { admin:'Administrador', editor:'Editor SyH', editor_admin:'Editor Admin', viewer:'Solo lectura' };
+  const rcls = { admin:'role-admin', editor:'role-editor', editor_admin:'role-editor', viewer:'role-viewer' };
+  grid.innerHTML = USERS.map(u => `
+    <div class="user-card">
+      <div class="user-avatar">${u.name.split(' ').map(x=>x[0]).join('').substring(0,2)}</div>
+      <div class="user-info">
+        <div class="user-name">${u.name} <span class="user-role-pill ${rcls[u.role]}">${rmap[u.role]}</span></div>
+        <div class="user-area">${u.area}</div>
+        <div class="user-docs">${u.email}</div>
+        <div class="user-docs">Usuario: <code style="font-size:11px">${u.user}</code></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openNewUser() { openModal('modal-user'); }
+
+function saveUser() {
+  const name = document.getElementById('nu-name').value.trim();
+  const user = document.getElementById('nu-user').value.trim();
+  const pass = document.getElementById('nu-pass').value;
+  const email = document.getElementById('nu-email').value.trim();
+  const role = document.getElementById('nu-role').value;
+  const area = document.getElementById('nu-area').value.trim();
+  if (!name || !user || !pass) { showToast('Nombre, usuario y contraseña son obligatorios', 'error'); return; }
+  USERS.push({ user, pass, name, role, email, area });
+  buildUsersGrid();
+  closeModal('modal-user');
+  showToast(`Usuario ${name} creado correctamente`, 'success');
+}
+
+// ─────────────────────────────────────────────
+//  RESPONSABLES
+// ─────────────────────────────────────────────
+
+function buildRespTable() {
+  const tbody = document.getElementById('resp-tbody');
+  if (!tbody) return;
+  tbody.innerHTML = RESPONSABLES.map(r => {
+    const docsCount = REQS.filter(req => req.resp === r.nombre).length;
+    const vencidos = REQS.filter(req => req.resp === r.nombre && (computeStatus(req) === 'VENCIDO' || req.status === 'ACTUALIZAR')).length;
+    const canDelete = docsCount === 0;
+    return `
+      <tr>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="width:32px;height:32px;border-radius:50%;background:var(--navy-light);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--gold);flex-shrink:0">${r.nombre.split(' ').map(x=>x[0]).join('').substring(0,2)}</div>
+            <span style="font-weight:600">${r.nombre}</span>
+          </div>
+        </td>
+        <td style="font-size:12px">${r.email || '<span style="color:var(--text-muted)">—</span>'}</td>
+        <td><span class="tag">${r.area || '—'}</span></td>
+        <td>
+          <span style="font-weight:700">${docsCount}</span> doc${docsCount!==1?'s':''}
+          ${vencidos > 0 ? `<span class="badge badge-vencido" style="margin-left:6px">${vencidos} vencido${vencidos!==1?'s':''}</span>` : ''}
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-ghost btn-sm" onclick="openEditResp(${r.id})" title="Editar">✏</button>
+            <button class="btn btn-ghost btn-sm" onclick="notifyRespByName('${r.nombre}')" title="Notificar">📧</button>
+            ${canDelete
+              ? `<button class="btn btn-danger btn-sm" onclick="deleteResp(${r.id})" title="Eliminar">🗑</button>`
+              : `<span class="perm-notice" title="Tiene documentos asignados">🔒 ${docsCount} docs</span>`
+            }
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function openNewResp() {
+  document.getElementById('modal-resp-title').textContent = 'Nuevo Responsable';
+  document.getElementById('resp-edit-id').value = '';
+  document.getElementById('rp-nombre').value = '';
+  document.getElementById('rp-area').value = '';
+  document.getElementById('rp-email').value = '';
+  openModal('modal-resp');
+}
+
+function openEditResp(id) {
+  const r = RESPONSABLES.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('modal-resp-title').textContent = 'Editar Responsable';
+  document.getElementById('resp-edit-id').value = id;
+  document.getElementById('rp-nombre').value = r.nombre;
+  document.getElementById('rp-area').value = r.area || '';
+  document.getElementById('rp-email').value = r.email || '';
+  openModal('modal-resp');
+}
+
+function saveResp() {
+  const id = document.getElementById('resp-edit-id').value;
+  const nombre = document.getElementById('rp-nombre').value.trim();
+  const area = document.getElementById('rp-area').value.trim();
+  const email = document.getElementById('rp-email').value.trim();
+  if (!nombre) { showToast('El nombre es obligatorio', 'error'); return; }
+
+  if (id) {
+    // Editar — si cambió el nombre, actualizar todos los REQs que lo referencian
+    const oldResp = RESPONSABLES.find(x => x.id === parseInt(id));
+    const oldNombre = oldResp.nombre;
+    Object.assign(oldResp, { nombre, area, email });
+    if (oldNombre !== nombre) {
+      REQS.forEach(r => { if (r.resp === oldNombre) r.resp = nombre; });
+      HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Renombró responsable "${oldNombre}" → "${nombre}" (${REQS.filter(r=>r.resp===nombre).length} docs reasignados)`, doc: '—' });
+    } else {
+      HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Editó datos de responsable "${nombre}"`, doc: '—' });
+    }
+    showToast(`Responsable "${nombre}" actualizado`, 'success');
+  } else {
+    if (RESPONSABLES.find(x => x.nombre.toLowerCase() === nombre.toLowerCase())) {
+      showToast('Ya existe un responsable con ese nombre', 'error'); return;
+    }
+    const newId = Math.max(...RESPONSABLES.map(x=>x.id), 0) + 1;
+    RESPONSABLES.push({ id: newId, nombre, area, email });
+    HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Agregó responsable "${nombre}" (${area})`, doc: '—' });
+    showToast(`Responsable "${nombre}" agregado`, 'success');
+  }
+
+  closeModal('modal-resp');
+  buildRespTable();
+  refreshRespSelectors();
+  buildHistorial();
+  buildDashboard();
+  buildReqTable();
+}
+
+function deleteResp(id) {
+  const r = RESPONSABLES.find(x => x.id === id);
+  if (!r) return;
+  const docsCount = REQS.filter(req => req.resp === r.nombre).length;
+  if (docsCount > 0) {
+    showToast(`No se puede eliminar: tiene ${docsCount} documentos asignados`, 'error');
+    return;
+  }
+  if (!confirm(`¿Eliminar el responsable "${r.nombre}"? Esta acción no se puede deshacer.`)) return;
+  RESPONSABLES.splice(RESPONSABLES.findIndex(x => x.id === id), 1);
+  HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Eliminó responsable "${r.nombre}"`, doc: '—' });
+  buildRespTable();
+  refreshRespSelectors();
+  buildHistorial();
+  showToast(`Responsable eliminado`, 'error');
+}
+
+function notifyRespByName(nombre) {
+  nav('notificaciones');
+  document.getElementById('notif-dest').value = nombre;
+  document.getElementById('notif-tipo').value = 'vencidos';
+  previewEmail();
+  showToast(`Seleccionado ${nombre} en Notificaciones`, 'info');
+}
+
+// Refresh all responsable selectors throughout the app
+function refreshRespSelectors() {
+  const nombres = RESPONSABLES.map(r => r.nombre).sort();
+  const opts = '<option value="">Todos</option>' + nombres.map(n => `<option>${n}</option>`).join('');
+  const optsAll = '<option value="">Seleccionar responsable...</option>' + nombres.map(n => `<option>${n}</option>`).join('');
+  const optsReq = '<option value="">— Seleccionar —</option>' + nombres.map(n => `<option>${n}</option>`).join('');
+
+  // Filter selector in Requisitos
+  const reqResp = document.getElementById('req-resp');
+  if (reqResp) reqResp.innerHTML = opts;
+
+  // Notif destination
+  const notifDest = document.getElementById('notif-dest');
+  if (notifDest) notifDest.innerHTML = optsAll;
+
+  // Modal r-resp
+  const rResp = document.getElementById('r-resp');
+  if (rResp) rResp.innerHTML = optsReq;
+}
+
+// ─────────────────────────────────────────────
+//  HELPERS
+// ─────────────────────────────────────────────
+
+function populateResponsableFilters() {
+  refreshRespSelectors();
+}
+
+function populateNotifDest() {
+  refreshRespSelectors();
+}
+
+function onFileSelect(input, previewId, nameId, sizeId) {
+  const file = input.files[0];
+  if (!file) return;
+  document.getElementById(previewId).style.display = 'flex';
+  document.getElementById(nameId).textContent = file.name;
+  document.getElementById(sizeId).textContent = (file.size / 1024 / 1024).toFixed(2) + ' MB';
+  showToast(`Archivo "${file.name}" seleccionado`, 'success');
+}
+
+function removeFile(inputId, previewId) {
+  document.getElementById(inputId).value = '';
+  document.getElementById(previewId).style.display = 'none';
+}
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function nav(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.getElementById('nav-' + page).classList.add('active');
+}
+
+function setupEditorVisibility() {
+  const isEditor = currentUser && currentUser.role !== 'viewer';
+  document.querySelectorAll('.editor-only').forEach(el => {
+    el.style.display = isEditor ? '' : 'none';
+  });
+  document.querySelectorAll('.admin-only').forEach(el => {
+    el.style.display = currentUser.role === 'admin' ? '' : 'none';
+  });
+}
+
+function showToast(msg, type = 'info') {
+  const tc = document.getElementById('toasts');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  const icon = { success:'✅', error:'❌', info:'ℹ️' }[type] || 'ℹ️';
+  t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(() => t.remove(), 4000);
+}
+
+// Close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => {
+    if (e.target === overlay) closeModal(overlay.id);
+  });
+});
+</script>
+</body>
+</html>
