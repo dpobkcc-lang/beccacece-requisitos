@@ -3023,12 +3023,29 @@ function showToast(msg, type = 'info') {
   setTimeout(() => t.remove(), 4000);
 }
 
-// Close modals on overlay click
+// Cerrar al hacer click afuera SOLO en modales de solo lectura
+// (detalle y visor de evidencia). Los modales con formularios
+// (cargar/editar requisito, responsable, usuario) NO se cierran
+// con click afuera, para evitar perder lo que se estaba cargando
+// por un click accidental fuera del cuadro — solo se cierran con
+// la X o los botones Cancelar/Guardar.
+const MODALES_SOLO_LECTURA = ['modal-detail', 'modal-viewer'];
+
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', e => {
-    if (e.target === overlay) {
+    if (e.target !== overlay) return;
+    if (MODALES_SOLO_LECTURA.includes(overlay.id)) {
       if (overlay.id === 'modal-viewer') closeViewer();
       else closeModal(overlay.id);
+    } else {
+      // Modal con formulario: no se cierra, solo da una señal visual
+      // breve de que el click "no hizo nada" (protección anti-pérdida de datos)
+      const modalBox = overlay.querySelector('.modal');
+      if (modalBox) {
+        modalBox.style.transition = 'transform 0.1s';
+        modalBox.style.transform = 'scale(0.99)';
+        setTimeout(() => { modalBox.style.transform = 'scale(1)'; }, 100);
+      }
     }
   });
 });
