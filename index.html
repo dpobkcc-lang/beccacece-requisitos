@@ -890,6 +890,10 @@
       </div>
     </div>
     <div class="topbar-right">
+      <div id="sync-indicator" style="font-size:11px; color:rgba(255,255,255,0.5); display:none;">
+        ⟳ Sincronizando...
+      </div>
+      <button class="btn btn-ghost btn-sm" id="btn-sync" onclick="sincronizarDesdeServidor(false)" title="Traer los últimos cambios de todos los usuarios">🔄 Actualizar datos</button>
       <div id="alert-indicator" style="font-size:12px; color:var(--amber-light); display:none;">
         ⚠ <span id="alert-count">0</span> vencimientos próximos
       </div>
@@ -1218,6 +1222,22 @@
               Las subcarpetas (ART, AMBIENTAL, seguros, SERVICIO SEH, etc.) ya están mapeadas — cada documento
               se guarda automáticamente en la carpeta que le corresponde según su categoría.
             </div>
+          </div>
+        </div>
+
+        <!-- PERSISTENCIA DE DATOS -->
+        <div style="margin-bottom:20px" class="admin-only">
+          <div class="section-divider">💾 Estado de los datos</div>
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px">
+            <div id="persist-status"></div>
+            <div class="help-text" style="margin-top:12px">
+              Con la conexión a Google Drive activa (ver arriba), cada carga, edición o eliminación se guarda
+              automáticamente en una hoja compartida dentro de la carpeta REQUISITOS_LEGALES. Todos los usuarios,
+              desde cualquier navegador, ven los mismos datos al abrir la página o al tocar "🔄 Actualizar datos"
+              en la barra superior. Si Drive no está conectado, el sistema sigue funcionando pero solo guarda
+              los cambios en este navegador (no se comparte con otros equipos hasta que se conecte Drive).
+            </div>
+            <button class="btn btn-danger btn-sm" style="margin-top:12px" onclick="reiniciarDatosDeFabrica()">↺ Borrar datos guardados y reiniciar</button>
           </div>
         </div>
 
@@ -1708,6 +1728,151 @@ let CHOFERES = [
   { id:5, nombre:'MRP648', tipo:'Vehículo Tractor', cuil:'MRP648', licencia:'N/A', art:'N/A', recibo:'N/A', induccion:'N/A', capacitacion:'N/A', epp:'N/A', estado:'Completo', vtv:'2026-11-20', seguro:'2026-12-01', checklist:'2026-06-15' },
 ];
 
+// ─────────────────────────────────────────────
+//  PERSISTENCIA COMPARTIDA (Google Sheets vía Apps Script)
+// ─────────────────────────────────────────────
+//
+// Todo lo que se carga/edita en esta web (estados de documentos,
+// evidencias subidas, responsables, historial) se guarda en una
+// hoja de cálculo compartida ("Estado_Sistema") dentro de la
+// carpeta REQUISITOS_LEGALES de Drive, usando el mismo Apps Script
+// que ya sube las evidencias. Así, CUALQUIER usuario desde
+// CUALQUIER navegador ve los mismos datos actualizados.
+//
+// localStorage se usa solo como caché instantáneo: al abrir la
+// página se muestra primero lo último que se vio en ESTE navegador
+// (para que no aparezca todo vacío mientras carga), y un instante
+// después se sincroniza con el servidor y se reemplaza por los
+// datos reales y actualizados de todos los usuarios.
+//
+// Si Drive todavía no está conectado (APPS_SCRIPT_URL vacío), el
+// sistema sigue funcionando solo con localStorage, como respaldo.
+
+const STORAGE_KEY = 'beccacece_requisitos_data_v1';
+let sincronizando = false;
+let ultimaSincronizacion = null;
+
+function snapshotActual() {
+  return { REQS, RESPONSABLES, HISTORIAL, CHOFERES, savedAt: new Date().toISOString() };
+}
+
+// Guarda en caché local (instantáneo) y, si Drive está conectado,
+// también en el servidor compartido (para que lo vean todos).
+async function guardarEstado() {
+  const snapshot = snapshotActual();
+
+  // 1) Caché local instantáneo
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(snapshot));
+  } catch (e) {
+    console.warn('No se pudo guardar en caché local:', e);
+  }
+  renderPersistStatus();
+
+  // 2) Servidor compartido (todos los usuarios)
+  if (driveConectado()) {
+    try {
+      sincronizando = true;
+      renderPersistStatus();
+      const res = await fetch(APPS_SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          accionTipo: 'guardarDatos',
+          datos: JSON.stringify(snapshot),
+          usuario: currentUser ? currentUser.name : '',
+        }),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        ultimaSincronizacion = new Date();
+      } else {
+        showToast('No se pudo sincronizar con el servidor compartido: ' + (data.error || 'error desconocido'), 'error');
+      }
+    } catch (e) {
+      showToast('Sin conexión al servidor compartido — el cambio quedó guardado solo en este navegador por ahora', 'error');
+    } finally {
+      sincronizando = false;
+      renderPersistStatus();
+    }
+  }
+}
+
+// Carga el caché local instantáneo (síncrono, para que la primera
+// pintura de la app no aparezca vacía mientras se espera la red).
+function cargarEstadoLocal() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const snapshot = JSON.parse(raw);
+    if (snapshot.REQS) REQS = snapshot.REQS;
+    if (snapshot.RESPONSABLES) RESPONSABLES = snapshot.RESPONSABLES;
+    if (snapshot.HISTORIAL) HISTORIAL = snapshot.HISTORIAL;
+    if (snapshot.CHOFERES) CHOFERES = snapshot.CHOFERES;
+    return true;
+  } catch (e) {
+    console.warn('No se pudo cargar el caché local, se usan los datos de fábrica:', e);
+    return false;
+  }
+}
+
+// Trae el estado real del servidor compartido y refresca toda la
+// pantalla. Se llama al iniciar sesión y se puede llamar manualmente
+// con el botón "Actualizar datos".
+async function sincronizarDesdeServidor(silencioso) {
+  if (!driveConectado()) return false;
+  const ind = document.getElementById('sync-indicator');
+  try {
+    sincronizando = true;
+    renderPersistStatus();
+    if (ind) ind.style.display = 'block';
+    const url = APPS_SCRIPT_URL + (APPS_SCRIPT_URL.includes('?') ? '&' : '?') + 'accionTipo=cargarDatos';
+    const res = await fetch(url, { method: 'GET' });
+    const data = await res.json();
+    if (data.ok && data.datos) {
+      const snapshot = JSON.parse(data.datos);
+      if (snapshot.REQS) REQS = snapshot.REQS;
+      if (snapshot.RESPONSABLES) RESPONSABLES = snapshot.RESPONSABLES;
+      if (snapshot.HISTORIAL) HISTORIAL = snapshot.HISTORIAL;
+      if (snapshot.CHOFERES) CHOFERES = snapshot.CHOFERES;
+      try { localStorage.setItem(STORAGE_KEY, data.datos); } catch(e) {}
+      ultimaSincronizacion = new Date();
+      refrescarTodaLaPantalla();
+      if (!silencioso) showToast('Datos actualizados desde el servidor compartido', 'success');
+      return true;
+    } else if (!silencioso) {
+      showToast('Todavía no hay datos guardados en el servidor compartido — se muestran los datos de fábrica', 'info');
+    }
+  } catch (e) {
+    if (!silencioso) showToast('No se pudo conectar al servidor compartido. Se muestran los últimos datos vistos en este navegador.', 'error');
+  } finally {
+    sincronizando = false;
+    if (ind) ind.style.display = 'none';
+    renderPersistStatus();
+  }
+  return false;
+}
+
+function refrescarTodaLaPantalla() {
+  buildDashboard();
+  buildReqTable();
+  buildChoferesTable();
+  buildRespTable();
+  buildHistorial();
+  populateResponsableFilters();
+  buildTicker();
+}
+
+function reiniciarDatosDeFabrica() {
+  if (!confirm('Esto borra todos los cambios guardados (evidencias cargadas, ediciones, historial) tanto en este navegador como en el servidor compartido, y vuelve a los datos originales. Los archivos ya subidos a Google Drive NO se borran. ¿Continuar?')) return;
+  try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+  location.reload();
+}
+
+// Carga el caché local ANTES de que el resto del código use REQS/RESPONSABLES/etc,
+// para que la primera pintura de la pantalla ya muestre algo (no vacío).
+cargarEstadoLocal();
+
 const TODAY = new Date('2026-06-27');
 
 function daysBetween(d1, d2) {
@@ -1783,7 +1948,7 @@ function doLogout() {
 //  APP SETUP
 // ─────────────────────────────────────────────
 
-function setupApp() {
+async function setupApp() {
   // Cargar URL de Apps Script guardada previamente en este navegador
   try {
     const savedUrl = localStorage.getItem('beccacece_drive_script_url');
@@ -1811,16 +1976,24 @@ function setupApp() {
   // Date
   document.getElementById('dash-date').textContent = TODAY.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
 
+  // 1) Primera pintura instantánea con lo último visto en este navegador (caché local)
   buildDashboard();
   buildReqTable();
   buildChoferesTable();
   buildUsersGrid();
   buildRespTable();
   buildHistorial();
-  buildTicker();
   populateResponsableFilters();
   renderDriveConfigStatus();
+  renderPersistStatus();
   buildTicker();
+
+  // 2) Sincronización en segundo plano con el servidor compartido —
+  // si hay datos más recientes de otros usuarios, se reemplaza todo
+  // automáticamente sin que el usuario tenga que hacer nada.
+  if (driveConectado()) {
+    sincronizarDesdeServidor(true);
+  }
 }
 
 // ─────────────────────────────────────────────
@@ -2281,6 +2454,7 @@ async function saveReq() {
   buildReqTable();
   buildHistorial();
   buildTicker();
+  await guardarEstado();
 }
 
 function viewReq(id) {
@@ -2325,7 +2499,7 @@ function viewReq(id) {
   openModal('modal-detail');
 }
 
-function deleteReq(id) {
+async function deleteReq(id) {
   if (!confirm('¿Eliminar este requisito? Esta acción no se puede deshacer.')) return;
   const r = REQS.find(x => x.id === id);
   REQS.splice(REQS.findIndex(x => x.id === id), 1);
@@ -2335,6 +2509,7 @@ function deleteReq(id) {
   buildReqTable();
   buildHistorial();
   buildTicker();
+  await guardarEstado();
 }
 
 // ─────────────────────────────────────────────
@@ -2407,20 +2582,22 @@ de Requisitos Legales de Beccacece Hnos. S.A.`;
   document.getElementById('email-preview-box').textContent = texto;
 }
 
-function sendEmail() {
+async function sendEmail() {
   const dest = document.getElementById('notif-dest').value;
   if (!dest) { showToast('Seleccioná un destinatario', 'error'); return; }
   previewEmail();
   HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Envió notificación de vencimientos a ${dest}`, doc: '—' });
   buildHistorial();
   buildTicker();
+  await guardarEstado();
   showToast(`Notificación enviada a ${dest}`, 'success');
 }
 
-function sendDailyReport() {
+async function sendDailyReport() {
   HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: 'Generó reporte diario de vencimientos', doc: '—' });
   buildHistorial();
   buildTicker();
+  await guardarEstado();
   showToast('Reporte diario generado y copiado', 'success');
 }
 
@@ -2464,7 +2641,49 @@ function renderDriveConfigStatus() {
     : `<div class="alert alert-danger" style="margin-bottom:0">⚠ No conectado todavía. Las evidencias se previsualizan localmente pero no se suben a Drive hasta pegar la URL del Apps Script.</div>`;
 }
 
-function guardarDriveUrl() {
+function renderPersistStatus() {
+  const box = document.getElementById('persist-status');
+  if (!box) return;
+
+  const conEvidenciaTotal = REQS.filter(r => r.driveUrl).length;
+
+  if (sincronizando) {
+    box.innerHTML = `<div class="alert alert-warning" style="margin-bottom:0">⟳ Sincronizando con el servidor compartido...</div>`;
+    return;
+  }
+
+  if (driveConectado()) {
+    const fecha = ultimaSincronizacion ? ultimaSincronizacion.toLocaleString('es-AR') : 'todavía no sincronizado en esta sesión';
+    box.innerHTML = `<div class="alert alert-success" style="margin-bottom:0">
+      🌐 <b>Modo compartido activo</b> — todos los usuarios, desde cualquier navegador, ven los mismos datos.<br>
+      Última sincronización con el servidor: <b>${fecha}</b>.<br>
+      Documentos con evidencia cargada: <b>${conEvidenciaTotal}</b>.
+    </div>`;
+    return;
+  }
+
+  // Drive no conectado: modo local únicamente
+  let raw = null;
+  try { raw = localStorage.getItem(STORAGE_KEY); } catch(e) {}
+  if (!raw) {
+    box.innerHTML = `<div class="alert alert-danger" style="margin-bottom:0">
+      📭 <b>Modo local únicamente</b> (Drive no conectado) — no hay cambios guardados todavía en este navegador.
+    </div>`;
+    return;
+  }
+  try {
+    const snapshot = JSON.parse(raw);
+    const fecha = snapshot.savedAt ? new Date(snapshot.savedAt).toLocaleString('es-AR') : 'desconocida';
+    box.innerHTML = `<div class="alert alert-danger" style="margin-bottom:0">
+      ⚠ <b>Modo local únicamente</b> (Drive no conectado) — estos cambios solo se ven en este navegador, no se comparten con otros usuarios.
+      Última actualización local: <b>${fecha}</b>.
+    </div>`;
+  } catch(e) {
+    box.innerHTML = `<div class="alert alert-danger" style="margin-bottom:0">⚠ Hay datos guardados pero no se pudieron leer correctamente.</div>`;
+  }
+}
+
+async function guardarDriveUrl() {
   const url = document.getElementById('drive-script-url').value.trim();
   if (url && !url.endsWith('/exec')) {
     showToast('La URL debe terminar en /exec — revisá que la copiaste completa', 'error');
@@ -2473,7 +2692,11 @@ function guardarDriveUrl() {
   APPS_SCRIPT_URL = url;
   try { localStorage.setItem('beccacece_drive_script_url', url); } catch(e) {}
   renderDriveConfigStatus();
+  renderPersistStatus();
   showToast(url ? 'Conexión con Drive guardada' : 'Conexión con Drive desactivada', url ? 'success' : 'info');
+  if (url) {
+    await sincronizarDesdeServidor(true);
+  }
 }
 
 async function probarDriveUrl() {
@@ -2590,7 +2813,7 @@ function openEditResp(id) {
   openModal('modal-resp');
 }
 
-function saveResp() {
+async function saveResp() {
   const id = document.getElementById('resp-edit-id').value;
   const nombre = document.getElementById('rp-nombre').value.trim();
   const area = document.getElementById('rp-area').value.trim();
@@ -2624,11 +2847,12 @@ function saveResp() {
   refreshRespSelectors();
   buildHistorial();
   buildTicker();
+  await guardarEstado();
   buildDashboard();
   buildReqTable();
 }
 
-function deleteResp(id) {
+async function deleteResp(id) {
   const r = RESPONSABLES.find(x => x.id === id);
   if (!r) return;
   const docsCount = REQS.filter(req => req.resp === r.nombre).length;
@@ -2643,6 +2867,7 @@ function deleteResp(id) {
   refreshRespSelectors();
   buildHistorial();
   buildTicker();
+  await guardarEstado();
   showToast(`Responsable eliminado`, 'error');
 }
 
