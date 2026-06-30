@@ -1079,6 +1079,30 @@
           </table>
         </div>
 
+        <!-- CONEXIÓN GOOGLE DRIVE -->
+        <div style="margin-bottom:20px" class="admin-only">
+          <div class="section-divider">☁ Conexión con Google Drive</div>
+          <div style="background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px">
+            <div id="drive-config-status"></div>
+            <div class="form-group" style="margin-top:12px">
+              <label>URL de Apps Script (termina en /exec)</label>
+              <input type="text" id="drive-script-url" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+              <div class="help-text">
+                Pegá acá la URL que te da Google al implementar el script "Codigo_AppsScript_Conector_Drive.gs".
+                Esta URL queda guardada solo en este navegador (no se comparte automáticamente con otros usuarios;
+                cada PC/usuario que cargue evidencias necesita pegarla una vez).
+              </div>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="guardarDriveUrl()">💾 Guardar conexión</button>
+            <button class="btn btn-ghost btn-sm" onclick="probarDriveUrl()">🔌 Probar conexión</button>
+            <div style="margin-top:14px" class="alert alert-warning">
+              💡 Carpeta raíz conectada: <b>REQUISITOS_LEGALES</b> en Drive (compartida con permisos de escritura).
+              Las subcarpetas (ART, AMBIENTAL, seguros, SERVICIO SEH, etc.) ya están mapeadas — cada documento
+              se guarda automáticamente en la carpeta que le corresponde según su categoría.
+            </div>
+          </div>
+        </div>
+
         <!-- RESPONSABLES -->
         <div style="margin-bottom:20px">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px">
@@ -1222,6 +1246,11 @@
       </div>
       <div class="form-group">
         <label>Subir archivo de evidencia</label>
+        <div id="drive-status-banner" class="alert alert-warning" style="display:none; margin-bottom:8px; font-size:11px">
+          ⚠ Google Drive no está conectado todavía. El archivo se previsualiza pero no se guarda en la nube. Completá <code>APPS_SCRIPT_URL</code> en el HTML.
+        </div>
+        <div id="drive-target-hint" style="font-size:11px; color:var(--text-muted); margin-bottom:6px"></div>
+        <div id="existing-evidence" style="display:none; margin-bottom:8px"></div>
         <div class="upload-area" onclick="document.getElementById('file-req').click()">
           <div class="upload-icon">📄</div>
           <div class="upload-text">Hacé clic para subir o arrastrar el archivo</div>
@@ -1242,7 +1271,7 @@
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-req')">Cancelar</button>
-      <button class="btn btn-primary" onclick="saveReq()">💾 Guardar</button>
+      <button class="btn btn-primary" id="req-save-btn" onclick="saveReq()">💾 Guardar</button>
     </div>
   </div>
 </div>
@@ -1352,6 +1381,98 @@
 <div class="toast-container" id="toasts"></div>
 
 <script>
+// ─────────────────────────────────────────────
+//  CONEXIÓN A GOOGLE DRIVE
+// ─────────────────────────────────────────────
+//
+// Pegá acá la URL de tu Google Apps Script (termina en /exec).
+// La obtenés siguiendo las instrucciones del archivo
+// "Codigo_AppsScript_Conector_Drive.gs" que te entregamos junto
+// a este HTML. Hasta que la completes, el sistema funciona en
+// modo local (los archivos se previsualizan pero no se suben).
+//
+// Pegá acá la URL de tu Google Apps Script (termina en /exec) si querés
+// dejarla fija para todos los que abran este archivo. También se puede
+// configurar desde la pantalla Usuarios > Conexión con Google Drive,
+// donde queda guardada en este navegador.
+let APPS_SCRIPT_URL = '';
+
+// Mapeo: categoría del requisito → carpeta de Drive correspondiente.
+// Estos códigos coinciden EXACTAMENTE con el objeto CARPETAS del
+// Apps Script — si agregás carpetas nuevas, agregalas en ambos lados.
+const CARPETA_POR_CATEGORIA = {
+  'GENERAL NEGOCIO':                 'ADMINISTRACION',
+  'AMBIENTAL':                       'AMBIENTAL_2026',
+  'SERVICIOS EXTERNOS':              'SERVICIO_SALUD',
+  'REQUISITOS MUNICIPAL ESTUDIO':    'CD',
+  'SISTEMA DE EMERGENCIAS':          'SEH_2025_PLAN_CONTINGENCIA',
+  'LEY 19587 / DEC 351/97':          'SEH_2025_RUIDOS',
+  'VEHÍCULOS':                       'SEGUROS_2026_AUTOMOVILES',
+  'CONTROL DOCUMENTARIO CMQ':        'RAIZ',
+};
+
+// Mapeo más fino, por nombre exacto de documento (tiene prioridad
+// sobre el mapeo por categoría). Cubre los casos donde dentro de
+// una misma categoría hay subcarpetas distintas según el año o tipo.
+const CARPETA_POR_DOCUMENTO = {
+  'Seguro RC':                          'SEGUROS_2025_RC',
+  'Seguro por Incendio':                'SEGUROS_2025_TODORIESGO',
+  'Seguro en el Transporte':             'SEGUROS_2026_TRANSPORTE',
+  'Carnet Manipulación Alimentos':       'ADMINISTRACION_CARNET',
+  'Certificado Disposición Final - Hidrocarburos': 'AMBIENTAL_2025_MANIFIESTOS',
+  'Certificado Disposición Cubiertas':   'AMBIENTAL_2025_MANIFIESTOS',
+  'Estudio de Iluminación':              'SEH_2025_ILUMINACION',
+  'Estudio de Ruido':                    'SEH_2025_RUIDOS',
+  'Medición Puesta a Tierra':            'SEH_2025_RUIDOS',
+  'Recarga de Extintores':               'SEH_2025_EXTINTORES',
+  'Verificaciones de Rack':              'SEH_2026_RACKS',
+  'Plan de Contingencias - Evacuación':  'SEH_2025_PLAN_CONTINGENCIA',
+  'Simulacro de Evacuación':             'SEH_2025_PLAN_CONTINGENCIA',
+};
+
+function resolverCarpeta(req) {
+  if (CARPETA_POR_DOCUMENTO[req.doc]) return CARPETA_POR_DOCUMENTO[req.doc];
+  if (CARPETA_POR_CATEGORIA[req.cat]) return CARPETA_POR_CATEGORIA[req.cat];
+  return 'RAIZ';
+}
+
+function driveConectado() {
+  return APPS_SCRIPT_URL && APPS_SCRIPT_URL.trim().length > 0;
+}
+
+// Convierte un File (input type=file) a base64 puro (sin el prefijo data:...)
+function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Sube un archivo al Drive a través del Apps Script.
+// Devuelve { ok, fileUrl, fileName } o lanza error.
+async function subirADrive(file, carpetaKey, meta) {
+  const base64 = await fileToBase64(file);
+  const payload = {
+    carpeta: carpetaKey,
+    nombreArchivo: file.name,
+    mimeType: file.type || 'application/octet-stream',
+    archivoBase64: base64,
+    documento: meta.documento || '',
+    responsable: meta.responsable || '',
+    usuario: currentUser ? currentUser.name : '',
+  };
+  const res = await fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // evita preflight CORS con Apps Script
+    body: JSON.stringify(payload),
+  });
+  const data = await res.json();
+  if (!data.ok) throw new Error(data.error || 'Error desconocido al subir el archivo.');
+  return data;
+}
+
 // ─────────────────────────────────────────────
 //  DATA
 // ─────────────────────────────────────────────
@@ -1522,6 +1643,12 @@ function doLogout() {
 // ─────────────────────────────────────────────
 
 function setupApp() {
+  // Cargar URL de Apps Script guardada previamente en este navegador
+  try {
+    const savedUrl = localStorage.getItem('beccacece_drive_script_url');
+    if (savedUrl) APPS_SCRIPT_URL = savedUrl;
+  } catch (e) { /* localStorage no disponible, se sigue en modo desconectado */ }
+
   // Topbar
   document.getElementById('topbar-username').textContent = currentUser.name;
   const rmap = { admin:'Administrador', editor:'Editor SyH', editor_admin:'Editor Admin', viewer:'Solo lectura' };
@@ -1550,6 +1677,7 @@ function setupApp() {
   buildRespTable();
   buildHistorial();
   populateResponsableFilters();
+  renderDriveConfigStatus();
 }
 
 // ─────────────────────────────────────────────
@@ -1688,6 +1816,7 @@ function renderReqTable() {
           <span class="doc-name">${r.doc}</span>
           <div class="doc-detail">${r.detalle.substring(0,50)}${r.detalle.length>50?'...':''}</div>
           ${r.link ? `<a href="${r.link}" target="_blank" class="doc-link">🔗 Ver norma</a>` : ''}
+          ${r.driveUrl ? `<br><a href="${r.driveUrl}" target="_blank" class="doc-link" style="color:#4dcd8a">📎 Evidencia en Drive</a>` : ''}
         </td>
         <td style="font-size:12px">${r.emisor||'—'}</td>
         <td>${r.resp}</td>
@@ -1828,6 +1957,9 @@ function openNewReq() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  document.getElementById('existing-evidence').style.display = 'none';
+  removeFile('file-req','file-preview-req');
+  updateDriveUploadUI();
   openModal('modal-req');
 }
 
@@ -1852,10 +1984,39 @@ function openEditReq(id) {
   document.getElementById('r-status').value = r.status;
   document.getElementById('r-ruta').value = r.ruta||'';
   document.getElementById('r-obs').value = r.obs||'';
+  removeFile('file-req','file-preview-req');
+
+  const evidBox = document.getElementById('existing-evidence');
+  if (r.driveUrl) {
+    evidBox.style.display = 'block';
+    evidBox.innerHTML = `<div class="alert alert-success" style="margin-bottom:0">📎 Evidencia ya cargada en Drive: <a href="${r.driveUrl}" target="_blank" class="doc-link" style="color:#4dcd8a">${r.driveFileName || 'ver archivo'}</a></div>`;
+  } else {
+    evidBox.style.display = 'none';
+  }
+
+  updateDriveUploadUI();
   openModal('modal-req');
 }
 
-function saveReq() {
+// Actualiza el banner de estado de Drive y a qué carpeta apuntará la subida,
+// según la categoría/documento que esté cargado en el formulario en ese momento.
+function updateDriveUploadUI() {
+  const banner = document.getElementById('drive-status-banner');
+  const hint = document.getElementById('drive-target-hint');
+  banner.style.display = driveConectado() ? 'none' : 'block';
+
+  const cat = document.getElementById('r-cat').value;
+  const docName = document.getElementById('r-doc').value;
+  const carpetaKey = resolverCarpeta({ cat, doc: docName });
+  const nombreLegible = carpetaKey.replace(/_/g, ' / ');
+  hint.textContent = driveConectado()
+    ? `📁 Este archivo se guardará en Drive: ${nombreLegible}`
+    : `📁 Cuando conectes Drive, este archivo se guardará en: ${nombreLegible}`;
+}
+document.getElementById('r-cat')?.addEventListener('change', updateDriveUploadUI);
+document.getElementById('r-doc')?.addEventListener('input', updateDriveUploadUI);
+
+async function saveReq() {
   const id = document.getElementById('req-id').value;
   const doc = document.getElementById('r-doc').value.trim();
   if (!doc) { showToast('El nombre del documento es obligatorio', 'error'); return; }
@@ -1878,10 +2039,39 @@ function saveReq() {
     obs: document.getElementById('r-obs').value,
   };
 
+  // ── Subida de evidencia a Google Drive (si hay archivo seleccionado) ──
+  const fileInput = document.getElementById('file-req');
+  const file = fileInput.files[0];
+  const saveBtn = document.getElementById('req-save-btn');
+
+  if (file) {
+    if (!driveConectado()) {
+      showToast('Drive no está conectado todavía: el archivo quedó como referencia local. Completá APPS_SCRIPT_URL en el código.', 'info');
+    } else {
+      try {
+        saveBtn.disabled = true;
+        saveBtn.textContent = '⏳ Subiendo a Drive...';
+        const carpetaKey = resolverCarpeta(obj);
+        const result = await subirADrive(file, carpetaKey, { documento: doc, responsable: resp });
+        obj.driveUrl = result.fileUrl;
+        obj.driveFileName = result.fileName;
+        obj.ruta = obj.ruta || result.fileName;
+        showToast(`Archivo subido a Drive correctamente`, 'success');
+      } catch (err) {
+        showToast('Error al subir a Drive: ' + err.message, 'error');
+        saveBtn.disabled = false;
+        saveBtn.textContent = '💾 Guardar';
+        return; // no guardamos el requisito si la subida falló, para que el usuario reintente
+      }
+      saveBtn.disabled = false;
+      saveBtn.textContent = '💾 Guardar';
+    }
+  }
+
   if (id) {
     const idx = REQS.findIndex(x => x.id === parseInt(id));
     REQS[idx] = { ...REQS[idx], ...obj };
-    HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Actualizó "${doc}"`, doc });
+    HISTORIAL.unshift({ date: TODAY.toISOString().slice(0,10), user: currentUser.name, action: `Actualizó "${doc}"${file ? ' y cargó nueva evidencia' : ''}`, doc });
     showToast('Requisito actualizado correctamente', 'success');
   } else {
     const newId = Math.max(...REQS.map(x=>x.id)) + 1;
@@ -1918,6 +2108,7 @@ function viewReq(id) {
       <tr><td style="padding:8px;color:var(--text-muted)">Fecha vencimiento</td><td style="font-family:var(--font-mono);font-weight:bold">${r.periodo==='NO VENCE'?'NO VENCE':formatDate(r.fvto)}</td></tr>
       ${r.link ? `<tr><td style="padding:8px;color:var(--text-muted)">Norma / Enlace</td><td><a href="${r.link}" target="_blank" class="doc-link">${r.link.substring(0,50)}...</a></td></tr>` : ''}
       ${r.ruta ? `<tr><td style="padding:8px;color:var(--text-muted)">Archivo</td><td style="font-size:11px;font-family:var(--font-mono)">${r.ruta}</td></tr>` : ''}
+      ${r.driveUrl ? `<tr><td style="padding:8px;color:var(--text-muted)">Evidencia en Drive</td><td><a href="${r.driveUrl}" target="_blank" class="doc-link">📎 ${r.driveFileName||'Ver archivo'} ↗</a></td></tr>` : ''}
       ${r.obs ? `<tr><td style="padding:8px;color:var(--text-muted)">Observaciones</td><td style="font-size:12px;color:var(--amber-light)">${r.obs}</td></tr>` : ''}
     </table>
   `;
@@ -2046,6 +2237,49 @@ function buildHistorial() {
       </div>
     </div>
   `).join('');
+}
+
+// ─────────────────────────────────────────────
+//  CONFIGURACIÓN DE CONEXIÓN DRIVE (desde la UI)
+// ─────────────────────────────────────────────
+
+function renderDriveConfigStatus() {
+  const box = document.getElementById('drive-config-status');
+  const input = document.getElementById('drive-script-url');
+  if (!box) return;
+  if (input) input.value = APPS_SCRIPT_URL || '';
+  box.innerHTML = driveConectado()
+    ? `<div class="alert alert-success" style="margin-bottom:0">✅ Conectado. Las evidencias que se carguen desde "Requisitos Legales" se guardan automáticamente en Drive.</div>`
+    : `<div class="alert alert-danger" style="margin-bottom:0">⚠ No conectado todavía. Las evidencias se previsualizan localmente pero no se suben a Drive hasta pegar la URL del Apps Script.</div>`;
+}
+
+function guardarDriveUrl() {
+  const url = document.getElementById('drive-script-url').value.trim();
+  if (url && !url.endsWith('/exec')) {
+    showToast('La URL debe terminar en /exec — revisá que la copiaste completa', 'error');
+    return;
+  }
+  APPS_SCRIPT_URL = url;
+  try { localStorage.setItem('beccacece_drive_script_url', url); } catch(e) {}
+  renderDriveConfigStatus();
+  showToast(url ? 'Conexión con Drive guardada' : 'Conexión con Drive desactivada', url ? 'success' : 'info');
+}
+
+async function probarDriveUrl() {
+  const url = document.getElementById('drive-script-url').value.trim();
+  if (!url) { showToast('Pegá primero la URL del Apps Script', 'error'); return; }
+  showToast('Probando conexión...', 'info');
+  try {
+    const res = await fetch(url, { method: 'GET' });
+    const data = await res.json();
+    if (data.ok) {
+      showToast('✅ Conexión exitosa: ' + (data.mensaje || 'el script respondió correctamente'), 'success');
+    } else {
+      showToast('El script respondió pero con error: ' + (data.error || 'desconocido'), 'error');
+    }
+  } catch (err) {
+    showToast('No se pudo conectar. Revisá que la URL sea correcta y que el script esté implementado como "Cualquier usuario".', 'error');
+  }
 }
 
 // ─────────────────────────────────────────────
