@@ -501,6 +501,44 @@
     justify-content: flex-end;
   }
 
+  /* DOCUMENT VIEWER (zoom) */
+  .viewer-modal {
+    max-width: 92vw;
+    width: 1000px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+  .viewer-body {
+    flex: 1;
+    overflow: auto;
+    background: #0a141f;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px;
+  }
+  .viewer-body iframe {
+    border: none;
+    background: white;
+    width: 100%;
+    height: 100%;
+    min-height: 75vh;
+  }
+  .viewer-body img {
+    transform-origin: top center;
+    transition: transform 0.15s ease;
+    max-width: none;
+    box-shadow: var(--shadow);
+    border-radius: 4px;
+  }
+  .viewer-pdf-wrap {
+    width: 100%;
+    height: 100%;
+    transform-origin: top center;
+    transition: transform 0.15s ease;
+  }
+
   .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
   .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
 
@@ -757,13 +795,6 @@
     </div>
     <button class="btn btn-primary btn-full" onclick="doLogin()">Ingresar</button>
     <div class="login-error" id="login-error">Usuario o contraseña incorrectos.</div>
-    <div style="margin-top:24px; font-size:11px; color:var(--text-muted); text-align:center; line-height:1.7;">
-      <b>Demo:</b><br>
-      admin / admin2024 (Administrador)<br>
-      edu / becca2026 (Editor SyH)<br>
-      mirta / gestion25 (Editora Admin)<br>
-      viewer / ver2026 (Solo lectura)
-    </div>
   </div>
 </div>
 
@@ -1292,6 +1323,26 @@
   </div>
 </div>
 
+<!-- Visor de evidencia (PDF / imagen) con zoom -->
+<div class="modal-overlay" id="modal-viewer">
+  <div class="modal viewer-modal">
+    <div class="modal-header">
+      <div class="modal-title" id="viewer-title">Evidencia</div>
+      <div style="display:flex; align-items:center; gap:8px">
+        <button class="btn btn-ghost btn-sm" onclick="viewerZoom(-0.25)" title="Alejar">➖</button>
+        <span id="viewer-zoom-label" style="font-size:12px; color:var(--text-muted); min-width:42px; text-align:center">100%</span>
+        <button class="btn btn-ghost btn-sm" onclick="viewerZoom(0.25)" title="Acercar">➕</button>
+        <button class="btn btn-ghost btn-sm" onclick="viewerZoomReset()" title="Restablecer zoom">↺</button>
+        <a id="viewer-open-tab" href="#" target="_blank" class="btn btn-ghost btn-sm" title="Abrir en pestaña nueva">⤢</a>
+        <button class="modal-close" onclick="closeViewer()">✕</button>
+      </div>
+    </div>
+    <div class="viewer-body" id="viewer-body">
+      <div class="empty-state"><div class="empty-icon">📄</div><div class="empty-text">Cargando evidencia...</div></div>
+    </div>
+  </div>
+</div>
+
 <!-- Nuevo usuario -->
 <div class="modal-overlay" id="modal-user">
   <div class="modal" style="max-width:440px">
@@ -1816,7 +1867,7 @@ function renderReqTable() {
           <span class="doc-name">${r.doc}</span>
           <div class="doc-detail">${r.detalle.substring(0,50)}${r.detalle.length>50?'...':''}</div>
           ${r.link ? `<a href="${r.link}" target="_blank" class="doc-link">🔗 Ver norma</a>` : ''}
-          ${r.driveUrl ? `<br><a href="${r.driveUrl}" target="_blank" class="doc-link" style="color:#4dcd8a">📎 Evidencia en Drive</a>` : ''}
+          ${r.driveUrl ? `<br><a href="#" onclick="openViewer('${r.driveUrl}', '${r.doc.replace(/'/g,"\\'")}'); return false;" class="doc-link" style="color:#4dcd8a">🔍 Ver evidencia</a>` : ''}
         </td>
         <td style="font-size:12px">${r.emisor||'—'}</td>
         <td>${r.resp}</td>
@@ -2095,6 +2146,12 @@ function viewReq(id) {
       <div>${getStatusBadge(st)}</div>
       <div>${getDaysPill(r.fvto, r.periodo)}</div>
     </div>
+    ${r.driveUrl ? `
+    <button class="btn btn-primary btn-full" style="margin-bottom:16px" onclick="openViewer('${r.driveUrl}', '${r.doc.replace(/'/g,"\\'")}')">
+      🔍 Ver evidencia con zoom
+    </button>` : `
+    <div class="alert alert-warning" style="margin-bottom:16px">📭 Todavía no hay evidencia cargada para este requisito.</div>
+    `}
     <table style="width:100%;font-size:13px;border-collapse:collapse">
       <tr><td style="padding:8px;color:var(--text-muted);width:35%">Categoría</td><td><span class="tag">${r.cat}</span></td></tr>
       <tr><td style="padding:8px;color:var(--text-muted)">Aplica a</td><td>${r.aplica}</td></tr>
@@ -2108,7 +2165,11 @@ function viewReq(id) {
       <tr><td style="padding:8px;color:var(--text-muted)">Fecha vencimiento</td><td style="font-family:var(--font-mono);font-weight:bold">${r.periodo==='NO VENCE'?'NO VENCE':formatDate(r.fvto)}</td></tr>
       ${r.link ? `<tr><td style="padding:8px;color:var(--text-muted)">Norma / Enlace</td><td><a href="${r.link}" target="_blank" class="doc-link">${r.link.substring(0,50)}...</a></td></tr>` : ''}
       ${r.ruta ? `<tr><td style="padding:8px;color:var(--text-muted)">Archivo</td><td style="font-size:11px;font-family:var(--font-mono)">${r.ruta}</td></tr>` : ''}
-      ${r.driveUrl ? `<tr><td style="padding:8px;color:var(--text-muted)">Evidencia en Drive</td><td><a href="${r.driveUrl}" target="_blank" class="doc-link">📎 ${r.driveFileName||'Ver archivo'} ↗</a></td></tr>` : ''}
+      ${r.driveUrl ? `<tr><td style="padding:8px;color:var(--text-muted)">Evidencia en Drive</td><td>
+        <a href="#" onclick="openViewer('${r.driveUrl}', '${r.doc.replace(/'/g,"\\'")}'); return false;" class="doc-link">🔍 ${r.driveFileName||'Ver archivo'} (con zoom)</a>
+        &nbsp;|&nbsp;
+        <a href="${r.driveUrl}" target="_blank" class="doc-link">abrir en Drive ↗</a>
+      </td></tr>` : ''}
       ${r.obs ? `<tr><td style="padding:8px;color:var(--text-muted)">Observaciones</td><td style="font-size:12px;color:var(--amber-light)">${r.obs}</td></tr>` : ''}
     </table>
   `;
@@ -2490,6 +2551,74 @@ function removeFile(inputId, previewId) {
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
+// ─────────────────────────────────────────────
+//  VISOR DE EVIDENCIA (PDF / imagen) CON ZOOM
+// ─────────────────────────────────────────────
+
+let viewerZoomLevel = 1;
+let viewerIsImage = false;
+
+function isImageUrl(url) {
+  return /\.(png|jpe?g|gif|webp)(\?|$)/i.test(url);
+}
+
+// Convierte un link "view" de Drive (.../file/d/ID/view) en un link
+// de previsualización embebible (.../file/d/ID/preview)
+function toDrivePreviewUrl(url) {
+  const m = url.match(/\/file\/d\/([^/]+)/);
+  if (m) return `https://drive.google.com/file/d/${m[1]}/preview`;
+  return url;
+}
+
+function openViewer(url, title) {
+  if (!url) { showToast('Esta evidencia todavía no tiene un archivo cargado', 'error'); return; }
+  viewerZoomLevel = 1;
+  document.getElementById('viewer-title').textContent = title || 'Evidencia';
+  document.getElementById('viewer-open-tab').href = url;
+  document.getElementById('viewer-zoom-label').textContent = '100%';
+  const body = document.getElementById('viewer-body');
+
+  const isDrive = url.includes('drive.google.com');
+  viewerIsImage = isImageUrl(url) && !isDrive;
+
+  if (viewerIsImage) {
+    // Imagen local (blob) o URL directa de imagen — se puede hacer zoom real con CSS
+    body.innerHTML = `<img id="viewer-img" src="${url}" alt="${title}" style="transform:scale(1)">`;
+  } else if (isDrive) {
+    // Archivo en Drive: usamos el visor embebido de Google, que ya trae su propio zoom interno
+    const previewUrl = toDrivePreviewUrl(url);
+    body.innerHTML = `<div class="viewer-pdf-wrap" id="viewer-pdf-wrap" style="transform:scale(1)"><iframe src="${previewUrl}" allow="autoplay"></iframe></div>`;
+  } else {
+    // PDF u otro archivo servido directo (blob local, etc.)
+    body.innerHTML = `<div class="viewer-pdf-wrap" id="viewer-pdf-wrap" style="transform:scale(1)"><iframe src="${url}"></iframe></div>`;
+  }
+
+  openModal('modal-viewer');
+}
+
+function closeViewer() {
+  document.getElementById('viewer-body').innerHTML = '';
+  closeModal('modal-viewer');
+}
+
+function viewerZoom(delta) {
+  viewerZoomLevel = Math.max(0.5, Math.min(3, viewerZoomLevel + delta));
+  applyViewerZoom();
+}
+
+function viewerZoomReset() {
+  viewerZoomLevel = 1;
+  applyViewerZoom();
+}
+
+function applyViewerZoom() {
+  document.getElementById('viewer-zoom-label').textContent = Math.round(viewerZoomLevel * 100) + '%';
+  const img = document.getElementById('viewer-img');
+  const pdfWrap = document.getElementById('viewer-pdf-wrap');
+  if (img) img.style.transform = `scale(${viewerZoomLevel})`;
+  if (pdfWrap) pdfWrap.style.transform = `scale(${viewerZoomLevel})`;
+}
+
 function nav(page) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -2520,7 +2649,10 @@ function showToast(msg, type = 'info') {
 // Close modals on overlay click
 document.querySelectorAll('.modal-overlay').forEach(overlay => {
   overlay.addEventListener('click', e => {
-    if (e.target === overlay) closeModal(overlay.id);
+    if (e.target === overlay) {
+      if (overlay.id === 'modal-viewer') closeViewer();
+      else closeModal(overlay.id);
+    }
   });
 });
 </script>
